@@ -1,0 +1,52 @@
+services:
+  mongo:
+    image: mongo:latest
+    container_name: rentable_mongo
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - rentable-network
+    restart: "no"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rentable_backend
+    ports:
+      - '5050:5000'
+    environment:
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongo:27017/rentable
+      - JWT_SECRET=production_secret_key_change_me
+      - JWT_EXPIRES_IN=7d
+      - NODE_ENV=production
+    depends_on:
+      - mongo
+    networks:
+      - rentable-network
+    restart: "no"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rentable_frontend
+    ports:
+      - '3030:3000'
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5050/api
+    depends_on:
+      - backend
+    networks:
+      - rentable-network
+    restart: "no"
+
+volumes:
+  mongo-data:
+
+networks:
+  rentable-network:
+    driver: bridge

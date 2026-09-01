@@ -1,0 +1,2037 @@
+# Rental Marketplace (MERN) — Enterprise Architecture
+
+> **Project Goal:** Build a scalable rental marketplace (similar to Airbnb) for renting physical products such as bikes, cameras, gaming consoles, electronics, furniture, tools, and more.
+
+---
+
+# Technology Stack (MERN)
+
+## Frontend
+
+* React.js (Vite) *(or Next.js if SSR/SEO is required)*
+* React Router
+* Tailwind CSS
+* Shadcn/UI
+* Framer Motion
+* React Hook Form
+* Zod Validation
+* Axios
+* React Query (TanStack Query)
+* Redux Toolkit (Authentication + Global State)
+* React Hot Toast
+
+---
+
+## Backend
+
+* Node.js
+* Express.js
+* MongoDB
+* Mongoose
+* JWT Authentication
+* Bcrypt
+* Cloudinary
+* Multer
+* Razorpay
+* Nodemailer
+* Socket.io (notifications)
+* Redis (optional for caching & OTP)
+
+---
+
+## Database
+
+MongoDB Atlas
+
+---
+
+# Overall Architecture
+
+```
+                    Client (React)
+
+        Landing
+        Product Search
+        Booking
+        Payment
+        Dashboard
+        Admin
+
+                │
+                │ HTTPS
+                ▼
+
+         Express REST API
+
+Authentication Module
+Users Module
+Products Module
+Booking Module
+Payment Module
+Review Module
+Notification Module
+Admin Module
+
+                │
+
+        MongoDB Database
+
+                │
+
+Cloudinary
+Razorpay
+Email Service
+Socket.io
+```
+
+---
+
+# User Roles
+
+```
+Guest
+
+↓
+
+Signup/Login
+
+↓
+
+Borrower
+    |
+    | Can Rent
+    |
+
+Owner
+    |
+    | Can List Products
+    |
+
+Admin
+```
+
+---
+
+# Database Design
+
+---
+
+# Users Collection
+
+```js
+{
+   _id,
+
+   name,
+
+   email,
+
+   phone,
+
+   password,
+
+   role:
+      borrower
+      owner
+      admin,
+
+   avatar,
+
+   isVerified,
+
+   walletBalance,
+
+   address:
+
+   {
+      city,
+      state,
+      country,
+      pincode
+   },
+
+   rating,
+
+   createdAt,
+
+   updatedAt
+}
+```
+
+---
+
+# Categories Collection
+
+```js
+{
+   _id,
+
+   name,
+
+   slug,
+
+   image,
+
+   icon,
+
+   createdAt
+}
+```
+
+Examples
+
+```
+Electronics
+
+Camera
+
+Gaming
+
+Bike
+
+Furniture
+
+Sports
+
+Tools
+
+Others
+```
+
+---
+
+# Products Collection
+
+```js
+{
+_id,
+
+owner,
+
+title,
+
+description,
+
+category,
+
+images:[ ],
+
+pricePerDay,
+
+securityDeposit,
+
+brand,
+
+condition,
+
+location,
+
+availability:
+
+{
+startDate,
+
+endDate
+},
+
+isAvailable,
+
+averageRating,
+
+totalReviews,
+
+createdAt,
+
+updatedAt
+}
+```
+
+---
+
+# Bookings Collection
+
+```js
+{
+_id,
+
+borrower,
+
+owner,
+
+product,
+
+startDate,
+
+endDate,
+
+days,
+
+pricePerDay,
+
+securityDeposit,
+
+subtotal,
+
+platformFee,
+
+tax,
+
+totalAmount,
+
+bookingStatus:
+
+Pending
+
+Accepted
+
+Rejected
+
+Cancelled
+
+Completed
+
+Returned
+
+paymentStatus,
+
+payment,
+
+createdAt
+}
+```
+
+---
+
+# Payments Collection
+
+```js
+{
+_id,
+
+booking,
+
+user,
+
+method,
+
+razorpayOrderId,
+
+razorpayPaymentId,
+
+amount,
+
+status,
+
+invoiceNumber,
+
+receipt,
+
+paidAt
+}
+```
+
+---
+
+# Reviews Collection
+
+```js
+{
+_id,
+
+booking,
+
+product,
+
+reviewer,
+
+rating,
+
+comment,
+
+createdAt
+}
+```
+
+---
+
+# Notifications Collection
+
+```js
+{
+_id,
+
+receiver,
+
+title,
+
+message,
+
+type,
+
+isRead,
+
+createdAt
+}
+```
+
+---
+
+# Authentication
+
+## JWT Flow
+
+```
+Signup
+
+↓
+
+Email Verification
+
+↓
+
+Login
+
+↓
+
+Generate Access Token
+
+↓
+
+Store JWT
+
+↓
+
+Protected Routes
+```
+
+---
+
+# API Design
+
+---
+
+## Auth
+
+```
+POST /api/auth/register
+
+POST /api/auth/login
+
+POST /api/auth/logout
+
+POST /api/auth/verify-email
+
+POST /api/auth/send-otp
+
+POST /api/auth/forgot-password
+
+POST /api/auth/reset-password
+
+GET /api/auth/me
+```
+
+---
+
+## User
+
+```
+GET /api/users/profile
+
+PUT /api/users/profile
+
+GET /api/users/history
+
+GET /api/users/payments
+
+GET /api/users/wallet
+```
+
+---
+
+## Categories
+
+```
+GET /api/categories
+
+POST /api/categories
+
+PUT /api/categories/:id
+
+DELETE /api/categories/:id
+```
+
+---
+
+## Products
+
+```
+GET /api/products
+
+GET /api/products/:id
+
+POST /api/products
+
+PUT /api/products/:id
+
+DELETE /api/products/:id
+
+GET /api/products/search
+
+GET /api/products/category/:slug
+```
+
+---
+
+## Booking
+
+```
+POST /api/bookings
+
+GET /api/bookings
+
+GET /api/bookings/:id
+
+PUT /api/bookings/accept/:id
+
+PUT /api/bookings/reject/:id
+
+PUT /api/bookings/return/:id
+
+DELETE /api/bookings/:id
+```
+
+---
+
+## Payments
+
+```
+POST /api/payments/create-order
+
+POST /api/payments/verify
+
+GET /api/payments/history
+
+GET /api/payments/invoice/:id
+```
+
+---
+
+## Reviews
+
+```
+POST /api/reviews
+
+GET /api/reviews/:productId
+
+DELETE /api/reviews/:id
+```
+
+---
+
+## Notifications
+
+```
+GET /api/notifications
+
+PUT /api/notifications/read/:id
+
+DELETE /api/notifications/:id
+```
+
+---
+
+## Admin
+
+```
+GET /admin/users
+
+GET /admin/products
+
+GET /admin/bookings
+
+GET /admin/payments
+
+GET /admin/dashboard
+
+DELETE /admin/user/:id
+
+DELETE /admin/product/:id
+```
+
+---
+
+# Backend Folder Structure
+
+```
+server/
+
+src/
+
+ config/
+
+ middleware/
+
+ models/
+
+ controllers/
+
+ routes/
+
+ services/
+
+ repositories/
+
+ validators/
+
+ utils/
+
+ helpers/
+
+ jobs/
+
+ sockets/
+
+ events/
+
+ constants/
+
+ database/
+
+ uploads/
+
+ templates/
+
+ docs/
+
+ app.js
+
+ server.js
+```
+
+---
+
+# Frontend Folder Structure
+
+```
+client/
+
+src/
+
+assets/
+
+components/
+
+ui/
+
+layouts/
+
+pages/
+
+Landing/
+
+Auth/
+
+Products/
+
+Booking/
+
+Profile/
+
+Owner/
+
+Admin/
+
+hooks/
+
+services/
+
+store/
+
+features/
+
+auth/
+
+products/
+
+bookings/
+
+payments/
+
+notifications/
+
+contexts/
+
+utils/
+
+constants/
+
+routes/
+
+App.jsx
+
+main.jsx
+```
+
+---
+
+# Component Hierarchy
+
+```
+App
+
+Navbar
+
+Hero
+
+Search
+
+Categories
+
+Featured Products
+
+Product Card
+
+Footer
+
+----------------------
+
+Product Details
+
+Image Gallery
+
+Price Card
+
+Availability Calendar
+
+Booking Card
+
+Reviews
+
+----------------------
+
+Dashboard
+
+Sidebar
+
+Overview Cards
+
+Charts
+
+Rental History
+
+Notifications
+
+Profile
+```
+
+---
+
+# Landing Page Design
+
+```
+------------------------------------------------
+
+Navbar
+
+------------------------------------------------
+
+Hero Banner
+
+Large Search
+
+Category Pills
+
+------------------------------------------------
+
+Featured Products
+
+Grid
+
+------------------------------------------------
+
+Popular Rentals
+
+------------------------------------------------
+
+How It Works
+
+------------------------------------------------
+
+Testimonials
+
+------------------------------------------------
+
+Footer
+```
+
+---
+
+# Product Details Page
+
+```
+Images
+
+Title
+
+Owner
+
+Rating
+
+Description
+
+Availability Calendar
+
+Rental Price
+
+Deposit
+
+Rental Duration Selector
+
+Total Cost Calculator
+
+Book Now Button
+
+Reviews
+```
+
+---
+
+# Booking Workflow
+
+```
+Borrower
+
+↓
+
+Select Product
+
+↓
+
+Select Dates
+
+↓
+
+Cost Calculation
+
+↓
+
+Owner Receives Request
+
+↓
+
+Accept
+
+↓
+
+Payment
+
+↓
+
+Booking Confirmed
+
+↓
+
+Rental Active
+
+↓
+
+Countdown
+
+↓
+
+Return Product
+
+↓
+
+Owner Confirms
+
+↓
+
+Deposit Released
+
+↓
+
+Review
+```
+
+---
+
+# Payment Workflow
+
+```
+Create Booking
+
+↓
+
+Create Razorpay Order
+
+↓
+
+Payment Page
+
+↓
+
+Success
+
+↓
+
+Verify Signature
+
+↓
+
+Store Payment
+
+↓
+
+Generate Invoice
+
+↓
+
+Booking Confirmed
+
+↓
+
+Email Receipt
+```
+
+---
+
+# Owner Dashboard
+
+```
+Overview
+
+Today's Earnings
+
+Monthly Earnings
+
+Products
+
+Bookings
+
+Rental Requests
+
+Reviews
+
+Analytics
+```
+
+---
+
+# Borrower Dashboard
+
+```
+Current Rentals
+
+Upcoming Rentals
+
+History
+
+Payments
+
+Wallet
+
+Notifications
+
+Reviews
+```
+
+---
+
+# Admin Dashboard
+
+```
+Statistics
+
+Total Users
+
+Total Products
+
+Total Rentals
+
+Revenue
+
+Charts
+
+Recent Bookings
+
+Pending Approvals
+
+Reported Listings
+```
+
+---
+
+# State Management
+
+## Redux Toolkit
+
+```
+authSlice
+
+productSlice
+
+bookingSlice
+
+paymentSlice
+
+notificationSlice
+
+categorySlice
+
+adminSlice
+```
+
+## React Query
+
+Used for:
+
+* Products
+* Categories
+* Reviews
+* Dashboard metrics
+* Notifications
+
+---
+
+# UI Theme
+
+## Colors
+
+```
+Primary
+
+#2563EB
+
+Accent
+
+#06B6D4
+
+Success
+
+#16A34A
+
+Warning
+
+#F59E0B
+
+Danger
+
+#DC2626
+
+Background
+
+#F8FAFC
+```
+
+---
+
+# Typography
+
+```
+Font
+
+Inter
+
+Headings
+
+Bold
+
+Body
+
+Medium
+
+Rounded cards
+
+24px radius
+
+Soft shadows
+
+Glass effects
+```
+
+---
+
+# Security Best Practices
+
+### Authentication
+
+* JWT Access Token
+* Refresh Token Rotation
+* Email Verification
+* OTP Expiration
+* Strong Password Policy
+
+### Authorization
+
+* Role-Based Access Control (RBAC)
+* Middleware Protection
+* Resource Ownership Checks
+
+### API
+
+* Rate Limiting
+* Helmet
+* CORS
+* Input Validation (Zod/Joi)
+* MongoDB Sanitization
+* XSS Protection
+* CSRF Protection (if using cookies)
+* Centralized Error Handling
+
+### Storage
+
+* Cloudinary for Images
+* Signed Uploads
+* Environment Variables
+* Secrets Management
+
+---
+
+# Deployment
+
+## Frontend
+
+* Vercel
+
+## Backend
+
+* Render / Railway / AWS EC2
+
+## Database
+
+* MongoDB Atlas
+
+## Storage
+
+* Cloudinary
+
+## Payments
+
+* Razorpay
+
+## Domain
+
+* Cloudflare DNS
+
+## Monitoring
+
+* Sentry
+* Logtail / Better Stack
+* UptimeRobot
+
+---
+
+# Suggested Project Structure (Feature-Driven)
+
+```
+rentify/
+├── client/                 # React + Vite
+├── server/                 # Express API
+├── shared/                 # Shared types/constants (optional)
+├── docs/                   # API docs, ER diagrams, architecture
+├── docker-compose.yml
+├── README.md
+└── .github/
+    └── workflows/          # CI/CD
+```
+
+---
+
+# Scalability Roadmap
+
+**Phase 1 (MVP)**
+
+* Authentication
+* Product listings
+* Search & filters
+* Booking requests
+* Razorpay payments
+* Reviews
+* Owner & borrower dashboards
+* Admin panel
+
+**Phase 2**
+
+* Real-time chat (Socket.io)
+* Push notifications
+* Wishlist
+* Coupons & promotions
+* Dynamic pricing
+* Wallet refunds
+* Multi-image optimization
+
+**Phase 3**
+
+* AI-powered product recommendations
+* Identity verification (KYC)
+* Geo-location search with maps
+* Rental insurance integration
+* Multi-vendor support
+* Mobile apps (React Native)
+
+This architecture follows modern MERN best practices with a feature-driven structure, normalized MongoDB collections, RBAC, secure JWT authentication, scalable API design, and a clean separation of concerns. It is suitable for an MVP and can grow into a production-grade rental marketplace serving thousands of users.
+
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+If you're going to build this with an AI coding assistant (Cursor, Claude Code, Windsurf, GitHub Copilot, ChatGPT, etc.), the best approach is **not one giant prompt**. Instead, use three prompts:
+
+1. **Frontend Master Prompt**
+2. **Backend Master Prompt**
+3. **Project Mega Master Prompt** (defines the entire architecture and coding standards)
+
+These are written as if you're hiring a senior software architect.
+
+---
+
+# 1. FRONTEND MASTER PROMPT
+
+```text
+You are a Senior Frontend Architect, Senior UI/UX Designer, and React Expert.
+
+Build a premium, modern, responsive rental marketplace frontend similar to Airbnb, but for rentable products.
+
+Products include:
+- Bikes
+- Cameras
+- Electronics
+- Gaming Consoles
+- Furniture
+- Tools
+- Sports Equipment
+- Musical Instruments
+- Other rentable products
+
+Use:
+
+- React 19 (Vite)
+- React Router
+- TailwindCSS
+- shadcn/ui
+- Framer Motion
+- React Hook Form
+- Zod
+- Redux Toolkit
+- TanStack Query
+- Axios
+- Lucide Icons
+
+The UI should look like a premium SaaS product with Airbnb-level polish.
+
+Never use Bootstrap or Material UI.
+
+-------------------------------------------------
+
+Design Principles
+
+• Mobile First
+• Fully Responsive
+• Clean White Theme
+• Soft Shadows
+• Rounded Cards (20-24px)
+• Beautiful spacing
+• Smooth animations
+• Accessibility compliant
+• Reusable components
+• Atomic Design principles
+
+-------------------------------------------------
+
+Application Pages
+
+Landing
+
+- Hero Section
+- Search
+- Categories
+- Featured Products
+- Popular Rentals
+- Testimonials
+- FAQ
+- Footer
+
+Authentication
+
+- Login
+- Signup
+- Forgot Password
+- OTP Verification
+- Reset Password
+
+Products
+
+- Product Listing
+- Search
+- Filters
+- Product Details
+- Image Gallery
+- Calendar
+- Reviews
+
+Booking
+
+- Booking Summary
+- Rental Duration
+- Cost Calculator
+- Checkout
+- Booking Success
+
+Borrower Dashboard
+
+- Dashboard
+- Active Rentals
+- Upcoming Rentals
+- Rental History
+- Wallet
+- Notifications
+- Reviews
+
+Owner Dashboard
+
+- Dashboard
+- My Listings
+- Add Product
+- Edit Product
+- Booking Requests
+- Earnings
+- Analytics
+
+Admin
+
+- Dashboard
+- Users
+- Products
+- Bookings
+- Payments
+- Categories
+- Reports
+
+Profile
+
+- Personal Info
+- Address
+- Payment History
+- Reviews
+- Settings
+
+-------------------------------------------------
+
+Component Requirements
+
+Create reusable components.
+
+Examples:
+
+Navbar
+
+Footer
+
+Sidebar
+
+Button
+
+Input
+
+Search Bar
+
+Category Card
+
+Product Card
+
+Review Card
+
+Booking Card
+
+Owner Card
+
+Rating Stars
+
+Availability Calendar
+
+Image Carousel
+
+Pagination
+
+Filters
+
+Price Slider
+
+Notification Bell
+
+Profile Menu
+
+Modal
+
+Drawer
+
+Toast
+
+Loading Skeleton
+
+Error State
+
+Empty State
+
+-------------------------------------------------
+
+Folder Structure
+
+src/
+
+assets/
+
+components/
+
+layouts/
+
+pages/
+
+hooks/
+
+services/
+
+store/
+
+features/
+
+routes/
+
+utils/
+
+constants/
+
+types/
+
+styles/
+
+-------------------------------------------------
+
+State Management
+
+Redux Toolkit
+
+Slices
+
+- auth
+- products
+- bookings
+- reviews
+- notifications
+- payments
+
+Use TanStack Query for server state.
+
+-------------------------------------------------
+
+Coding Standards
+
+TypeScript only.
+
+Functional Components only.
+
+No inline CSS.
+
+Use reusable hooks.
+
+Small reusable files.
+
+No duplicated code.
+
+Use absolute imports.
+
+Follow SOLID principles.
+
+-------------------------------------------------
+
+Animations
+
+Use Framer Motion.
+
+Page transitions
+
+Hover effects
+
+Card animations
+
+Modal animations
+
+Skeleton loaders
+
+-------------------------------------------------
+
+Every page should be production-ready and pixel-perfect.
+
+Generate components in a scalable manner suitable for large applications.
+```
+
+---
+
+# 2. BACKEND MASTER PROMPT
+
+```text
+You are a Senior Backend Architect and Node.js Engineer.
+
+Build a scalable enterprise backend for a Rental Marketplace.
+
+Use
+
+Node.js
+
+Express.js
+
+MongoDB
+
+Mongoose
+
+JWT
+
+Cloudinary
+
+Razorpay
+
+Nodemailer
+
+Socket.io
+
+Redis (optional)
+
+-------------------------------------------------
+
+Architecture
+
+Follow Clean Architecture.
+
+Controller
+
+↓
+
+Service
+
+↓
+
+Repository
+
+↓
+
+Database
+
+Use dependency separation.
+
+-------------------------------------------------
+
+Authentication
+
+Signup
+
+Login
+
+Logout
+
+Forgot Password
+
+Reset Password
+
+Email Verification
+
+OTP Verification
+
+Refresh Token
+
+JWT
+
+Role Based Authentication
+
+Roles
+
+Borrower
+
+Owner
+
+Admin
+
+-------------------------------------------------
+
+Modules
+
+Auth
+
+Users
+
+Categories
+
+Products
+
+Bookings
+
+Payments
+
+Reviews
+
+Notifications
+
+Admin
+
+Analytics
+
+-------------------------------------------------
+
+Database Collections
+
+Users
+
+Categories
+
+Products
+
+Bookings
+
+Payments
+
+Reviews
+
+Notifications
+
+Wallet
+
+Transactions
+
+-------------------------------------------------
+
+Product Features
+
+CRUD
+
+Multiple Images
+
+Cloudinary Upload
+
+Availability Calendar
+
+Daily Pricing
+
+Security Deposit
+
+Owner Verification
+
+-------------------------------------------------
+
+Booking
+
+Booking Request
+
+Accept
+
+Reject
+
+Cancel
+
+Complete
+
+Return
+
+Countdown
+
+Status Updates
+
+-------------------------------------------------
+
+Payments
+
+Razorpay Integration
+
+Order Creation
+
+Payment Verification
+
+Invoice Generation
+
+Receipt
+
+Refund
+
+Wallet Credit
+
+-------------------------------------------------
+
+Reviews
+
+Verified Reviews only.
+
+Rating aggregation.
+
+-------------------------------------------------
+
+Notifications
+
+Email
+
+Database Notifications
+
+Socket.io realtime notifications.
+
+-------------------------------------------------
+
+Middleware
+
+Authentication
+
+Authorization
+
+Validation
+
+Error Handler
+
+Rate Limiter
+
+Logger
+
+File Upload
+
+-------------------------------------------------
+
+Validation
+
+Use Zod or Joi.
+
+Never trust client data.
+
+-------------------------------------------------
+
+Security
+
+Helmet
+
+Cors
+
+Mongo Sanitization
+
+XSS Protection
+
+Rate Limiting
+
+Password Hashing
+
+JWT Expiration
+
+Refresh Tokens
+
+Environment Variables
+
+-------------------------------------------------
+
+Folder Structure
+
+src/
+
+config/
+
+controllers/
+
+services/
+
+repositories/
+
+models/
+
+middlewares/
+
+validators/
+
+routes/
+
+utils/
+
+helpers/
+
+constants/
+
+events/
+
+sockets/
+
+database/
+
+jobs/
+
+-------------------------------------------------
+
+Coding Standards
+
+Async Await
+
+No Callback Hell
+
+Reusable Services
+
+SOLID
+
+Repository Pattern
+
+Proper Error Classes
+
+Pagination
+
+Filtering
+
+Sorting
+
+Searching
+
+Global Exception Handling
+
+-------------------------------------------------
+
+API Documentation
+
+Swagger
+
+RESTful APIs
+
+Versioning
+
+/api/v1/
+
+-------------------------------------------------
+
+Generate scalable production-ready code.
+```
+
+---
+
+# 3. MEGA MASTER PROMPT (Recommended)
+
+This is the prompt I would use to build the **entire application**.
+
+```text
+You are a Principal Software Architect, Senior Full Stack Engineer, DevOps Engineer, UI/UX Designer, Database Architect, and Product Designer.
+
+Your task is to build an enterprise-grade Rental Marketplace similar to Airbnb, but instead of homes, users rent physical products.
+
+The project must be production-ready, scalable, secure, modular, and maintainable.
+
+====================================================
+
+TECH STACK
+
+Frontend
+
+React 19
+Vite
+TypeScript
+TailwindCSS
+shadcn/ui
+Redux Toolkit
+TanStack Query
+React Hook Form
+Framer Motion
+Axios
+
+Backend
+
+Node.js
+Express.js
+MongoDB
+Mongoose
+JWT
+Cloudinary
+Razorpay
+Nodemailer
+Socket.io
+
+====================================================
+
+ROLES
+
+Borrower
+
+Owner
+
+Admin
+
+====================================================
+
+FEATURES
+
+Authentication
+
+Email Verification
+
+OTP
+
+JWT
+
+Forgot Password
+
+Landing Page
+
+Advanced Search
+
+Categories
+
+Featured Products
+
+Popular Rentals
+
+Product Management
+
+Booking Engine
+
+Payment Gateway
+
+Wallet
+
+Notifications
+
+Ratings
+
+Reviews
+
+Analytics
+
+Admin Dashboard
+
+====================================================
+
+ARCHITECTURE
+
+Use Feature Based Architecture.
+
+Follow SOLID principles.
+
+Use Clean Architecture.
+
+Repository Pattern.
+
+Reusable Components.
+
+Reusable Hooks.
+
+Reusable Utilities.
+
+Reusable Services.
+
+====================================================
+
+QUALITY
+
+Enterprise Ready
+
+Production Ready
+
+Highly Scalable
+
+Clean Code
+
+No Code Duplication
+
+Responsive
+
+SEO Friendly
+
+Accessibility
+
+Performance Optimized
+
+Security Hardened
+
+====================================================
+
+DATABASE
+
+Design normalized MongoDB schemas.
+
+Proper indexes.
+
+Aggregation pipelines.
+
+Pagination.
+
+Filtering.
+
+Searching.
+
+====================================================
+
+API
+
+REST API
+
+Swagger
+
+Versioning
+
+Proper status codes
+
+Validation
+
+Rate limiting
+
+====================================================
+
+UI
+
+Premium Airbnb-inspired design.
+
+Large cards.
+
+Rounded corners.
+
+Beautiful spacing.
+
+Responsive.
+
+Animations.
+
+Skeleton loading.
+
+Dark Mode support.
+
+====================================================
+
+OUTPUT RULES
+
+Never generate everything at once.
+
+Always generate code feature by feature.
+
+Each feature must include:
+
+1. Folder structure
+2. API endpoints
+3. Database schema
+4. Backend implementation
+5. Frontend implementation
+6. Redux state
+7. Validation
+8. Error handling
+9. Testing considerations
+
+Always maintain consistency across the entire codebase.
+
+Assume this project will eventually support millions of users and should be architected accordingly.
+```
+
+## Suggested development order
+
+To get the highest-quality AI-generated code, work through the project in this sequence rather than asking for everything at once:
+
+1. Project setup (frontend + backend)
+2. Authentication & RBAC
+3. Database models
+4. Landing page & shared UI
+5. Product management
+6. Search & filtering
+7. Booking system
+8. Razorpay payment integration
+9. Borrower dashboard
+10. Owner dashboard
+11. Admin panel
+12. Notifications & email
+13. Reviews & ratings
+14. Performance optimization, testing, and deployment
+
+This incremental approach produces cleaner, more maintainable code than trying to generate the entire application in a single prompt.
+
