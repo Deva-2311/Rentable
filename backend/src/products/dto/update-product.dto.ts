@@ -1,4 +1,10 @@
-import { IsArray, IsBoolean, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class UpdateProductDto {
   @IsString()
@@ -44,4 +50,8 @@ export class UpdateProductDto {
   @IsString()
   @IsOptional()
   cancellationPolicy?: string;
+
+  @IsString()
+  @IsOptional()
+  status?: string;
 }

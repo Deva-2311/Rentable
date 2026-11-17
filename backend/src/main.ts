@@ -1,12 +1,42 @@
 import { NestFactory } from '@nestjs/core';
+import * as crypto from 'crypto';
+
+if (typeof globalThis.crypto === 'undefined') {
+  (globalThis as any).crypto = { 
+    getRandomValues: crypto.webcrypto?.getRandomValues.bind(crypto.webcrypto),
+    randomUUID: crypto.randomUUID.bind(crypto)
+  };
+}
+
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, Logger } from '@nestjs/common';
 import helmet from 'helmet';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AllExceptionsFilter } from './common/filters/http-exception.filter';
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
+
+const winstonLogger = WinstonModule.createLogger({
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+        winston.format.colorize(),
+        winston.format.printf(
+          ({ timestamp, level, message, context }) =>
+            `${timestamp} [${context ?? 'App'}] ${level}: ${message}`,
+        ),
+      ),
+    }),
+  ],
+});
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { logger: winstonLogger });
+  const logger = new Logger('Bootstrap');
+
+  // Graceful shutdown
+  app.enableShutdownHooks();
 
   // Global Prefix
   app.setGlobalPrefix('api');
@@ -21,7 +51,7 @@ async function bootstrap() {
       process.env.FRONTEND_URL,
       'http://localhost:3000',
       'http://localhost:3030', // New frontend port
-    ].filter(Boolean) as string[],
+    ].filter(Boolean),
     credentials: true,
   });
 
@@ -46,6 +76,7 @@ async function bootstrap() {
 
   const port = process.env.PORT || 5000;
   await app.listen(port);
-  console.log(`Application is running on: ${await app.getUrl()}`);
+  logger.log(`🚀 Rentable API running on: ${await app.getUrl()}`);
+  logger.log(`📚 Swagger docs: ${await app.getUrl()}/api/docs`);
 }
 bootstrap();

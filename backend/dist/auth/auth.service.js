@@ -76,11 +76,15 @@ let AuthService = class AuthService {
         return { accessToken, refreshToken };
     }
     async register(registerDto) {
+        if (!registerDto.fullName && !registerDto.name) {
+            throw new common_1.BadRequestException('Full name is required');
+        }
         const user = await this.usersService.create(registerDto);
         const tokens = await this.generateTokens(user);
         return {
             _id: user._id,
             name: user.fullName,
+            fullName: user.fullName,
             email: user.email,
             role: user.role,
             token: tokens.accessToken,
@@ -103,6 +107,7 @@ let AuthService = class AuthService {
         return {
             _id: user._id,
             name: user.fullName,
+            fullName: user.fullName,
             email: user.email,
             role: user.role,
             token: tokens.accessToken,
@@ -110,11 +115,13 @@ let AuthService = class AuthService {
         };
     }
     async refresh(refreshDto) {
-        const tokenRecord = await this.refreshTokenModel.findOne({
+        const tokenRecord = await this.refreshTokenModel
+            .findOne({
             token: refreshDto.refreshToken,
             isRevoked: false,
             expiresAt: { $gt: new Date() },
-        }).populate('user');
+        })
+            .populate('user');
         if (!tokenRecord) {
             throw new common_1.UnauthorizedException('Invalid or expired refresh token');
         }
@@ -134,11 +141,17 @@ let AuthService = class AuthService {
     async forgotPassword(forgotPasswordDto) {
         const user = await this.usersService.findByEmail(forgotPasswordDto.email);
         if (!user) {
-            return { success: true, message: 'If the email exists, a reset link has been sent' };
+            return {
+                success: true,
+                message: 'If the email exists, a reset link has been sent',
+            };
         }
         const resetToken = crypto.randomBytes(20).toString('hex');
         console.log(`[MOCK EMAIL] Reset link for ${user.email}: http://localhost:3000/reset-password?token=${resetToken}`);
-        return { success: true, message: 'If the email exists, a reset link has been sent' };
+        return {
+            success: true,
+            message: 'If the email exists, a reset link has been sent',
+        };
     }
     async resetPassword(resetPasswordDto) {
         if (resetPasswordDto.token.length < 10) {

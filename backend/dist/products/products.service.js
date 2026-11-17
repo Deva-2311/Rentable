@@ -20,16 +20,59 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const product_schema_1 = require("./schemas/product.schema");
+const category_schema_1 = require("../categories/schemas/category.schema");
 const slugify_1 = __importDefault(require("slugify"));
 let ProductsService = class ProductsService {
     productModel;
-    constructor(productModel) {
+    categoryModel;
+    constructor(productModel, categoryModel) {
         this.productModel = productModel;
+        this.categoryModel = categoryModel;
+    }
+    async resolveCategoryId(categoryInput) {
+        const trimmed = String(categoryInput || '').trim();
+        if (!trimmed) {
+            throw new common_1.BadRequestException('Category is required');
+        }
+        if ((0, mongoose_2.isValidObjectId)(trimmed)) {
+            const existing = await this.categoryModel.findById(trimmed);
+            if (existing) {
+                return existing._id;
+            }
+            return new mongoose_2.Types.ObjectId(trimmed);
+        }
+        const escapedInput = trimmed.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const normalizedSlug = (0, slugify_1.default)(trimmed, { lower: true, strict: true }) || trimmed.toLowerCase();
+        let categoryDoc = await this.categoryModel.findOne({
+            $or: [
+                { slug: trimmed.toLowerCase() },
+                { slug: normalizedSlug },
+                { name: new RegExp(`^${escapedInput}$`, 'i') },
+            ],
+        });
+        if (!categoryDoc) {
+            categoryDoc = await this.categoryModel.findOne({
+                name: new RegExp(escapedInput, 'i'),
+            });
+        }
+        if (!categoryDoc) {
+            const displayName = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+            categoryDoc = await this.categoryModel.create({
+                name: displayName,
+                slug: normalizedSlug || `category-${Date.now()}`,
+                isActive: true,
+            });
+        }
+        return categoryDoc._id;
     }
     async create(ownerId, createProductDto) {
-        const slug = (0, slugify_1.default)(`${createProductDto.name}-${Date.now()}`, { lower: true });
+        const slug = (0, slugify_1.default)(`${createProductDto.name}-${Date.now()}`, {
+            lower: true,
+        });
+        const categoryId = await this.resolveCategoryId(createProductDto.category);
         const createdProduct = new this.productModel({
             ...createProductDto,
+            category: categoryId,
             owner: ownerId,
             slug,
             status: product_schema_1.ProductStatus.ACTIVE,
@@ -39,7 +82,27 @@ let ProductsService = class ProductsService {
     async findAll(query = {}) {
         const filter = { status: product_schema_1.ProductStatus.ACTIVE };
         if (query.category) {
-            filter.category = query.category;
+            const catQuery = String(query.category).trim();
+            let targetCategoryId = null;
+            if ((0, mongoose_2.isValidObjectId)(catQuery)) {
+                targetCategoryId = new mongoose_2.Types.ObjectId(catQuery);
+            }
+            const categoryDoc = await this.categoryModel.findOne({
+                $or: [
+                    ...(targetCategoryId ? [{ _id: targetCategoryId }] : []),
+                    { slug: catQuery.toLowerCase() },
+                    { name: new RegExp(`^${catQuery}$`, 'i') },
+                ],
+            });
+            if (categoryDoc) {
+                filter.category = categoryDoc._id;
+            }
+            else if (targetCategoryId) {
+                filter.category = targetCategoryId;
+            }
+            else {
+                filter.category = new mongoose_2.Types.ObjectId();
+            }
         }
         if (query.search) {
             filter.$or = [
@@ -49,11 +112,10 @@ let ProductsService = class ProductsService {
             ];
         }
         if (query.minPrice || query.maxPrice) {
-            filter.pricePerDay = {};
-            if (query.minPrice)
-                filter.pricePerDay.$gte = Number(query.minPrice);
-            if (query.maxPrice)
-                filter.pricePerDay.$lte = Number(query.maxPrice);
+            filter.pricePerDay = {
+                ...(query.minPrice ? { $gte: Number(query.minPrice) } : {}),
+                ...(query.maxPrice ? { $lte: Number(query.maxPrice) } : {}),
+            };
         }
         if (query.condition) {
             filter.condition = { $in: query.condition.split(',') };
@@ -67,9 +129,11 @@ let ProductsService = class ProductsService {
             rating: { rating: -1 },
             newest: { createdAt: -1 },
         };
-        const sort = sortMap[query.sort] || { createdAt: -1 };
-        const page = parseInt(query.page) || 1;
-        const limit = parseInt(query.limit) || 12;
+        const sort = sortMap[query.sort ?? ''] ?? {
+            createdAt: -1,
+        };
+        const page = parseInt(String(query.page ?? '1')) || 1;
+        const limit = parseInt(String(query.limit ?? '12')) || 12;
         const skip = (page - 1) * limit;
         const [products, total] = await Promise.all([
             this.productModel
@@ -104,23 +168,49 @@ let ProductsService = class ProductsService {
         return product;
     }
     async findByOwner(ownerId) {
+        const ownerIdStr = String(ownerId);
+        const ownerObjId = (0, mongoose_2.isValidObjectId)(ownerIdStr) ? new mongoose_2.Types.ObjectId(ownerIdStr) : null;
+        const filter = ownerObjId
+            ? { $or: [{ owner: ownerObjId }, { owner: ownerIdStr }] }
+            : { owner: ownerIdStr };
         return this.productModel
-            .find({ owner: ownerId })
+            .find(filter)
             .populate('category', 'name slug')
             .sort({ createdAt: -1 })
             .exec();
     }
-    async update(id, ownerId, updateProductDto) {
-        const product = await this.findById(id);
-        if (String(product.owner) !== String(ownerId)) {
+    async update(id, userId, updateProductDto, userRole) {
+        const product = await this.productModel.findById(id).exec();
+        if (!product) {
+            throw new common_1.NotFoundException('Product not found');
+        }
+        const productOwnerId = String(product.owner?._id || product.owner);
+        const isAdmin = userRole === 'admin' || userRole === 'super_admin';
+        if (!isAdmin && productOwnerId !== String(userId)) {
             throw new common_1.UnauthorizedException('You can only edit your own products');
         }
-        Object.assign(product, updateProductDto);
-        return product.save();
+        const updateData = { ...updateProductDto };
+        if (updateData.category) {
+            updateData.category = await this.resolveCategoryId(updateData.category);
+        }
+        const updated = await this.productModel
+            .findByIdAndUpdate(id, { $set: updateData }, { new: true })
+            .populate('category', 'name slug')
+            .populate('owner', 'fullName avatar')
+            .exec();
+        if (!updated) {
+            throw new common_1.NotFoundException('Product not found after update');
+        }
+        return updated;
     }
-    async remove(id, ownerId) {
-        const product = await this.findById(id);
-        if (String(product.owner) !== String(ownerId)) {
+    async remove(id, userId, userRole) {
+        const product = await this.productModel.findById(id).exec();
+        if (!product) {
+            throw new common_1.NotFoundException('Product not found');
+        }
+        const productOwnerId = String(product.owner?._id || product.owner);
+        const isAdmin = userRole === 'admin' || userRole === 'super_admin';
+        if (!isAdmin && productOwnerId !== String(userId)) {
             throw new common_1.UnauthorizedException('You can only delete your own products');
         }
         await this.productModel.findByIdAndDelete(id).exec();
@@ -141,6 +231,8 @@ exports.ProductsService = ProductsService;
 exports.ProductsService = ProductsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(product_schema_1.Product.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __param(1, (0, mongoose_1.InjectModel)(category_schema_1.Category.name)),
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model])
 ], ProductsService);
 //# sourceMappingURL=products.service.js.map

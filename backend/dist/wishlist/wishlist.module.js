@@ -18,7 +18,9 @@ exports.WishlistModule = WishlistModule;
 exports.WishlistModule = WishlistModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forFeature([{ name: wishlist_schema_1.Wishlist.name, schema: wishlist_schema_1.WishlistSchema }]),
+            mongoose_1.MongooseModule.forFeature([
+                { name: wishlist_schema_1.Wishlist.name, schema: wishlist_schema_1.WishlistSchema },
+            ]),
         ],
         providers: [wishlist_service_1.WishlistService],
         controllers: [wishlist_controller_1.WishlistController],

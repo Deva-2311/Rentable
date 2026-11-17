@@ -25,11 +25,11 @@ let NotificationsController = class NotificationsController {
     async getNotifications(req) {
         return {
             success: true,
-            data: await this.notificationsService.getMyNotifications(req.user._id),
+            data: await this.notificationsService.getMyNotifications(String(req.user._id)),
         };
     }
     async markAllAsRead(req) {
-        await this.notificationsService.markAllAsRead(req.user._id);
+        await this.notificationsService.markAllAsRead(String(req.user._id));
         return {
             success: true,
             message: 'All notifications marked as read',
@@ -38,7 +38,7 @@ let NotificationsController = class NotificationsController {
     async markAsRead(req, id) {
         return {
             success: true,
-            data: await this.notificationsService.markAsRead(id, req.user._id),
+            data: await this.notificationsService.markAsRead(id, String(req.user._id)),
         };
     }
 };

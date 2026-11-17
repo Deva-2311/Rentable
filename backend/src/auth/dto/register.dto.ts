@@ -1,10 +1,21 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 import { UserRole } from '../../common/enums/role.enum';
 
 export class RegisterDto {
   @IsString()
-  @IsNotEmpty()
-  name: string;
+  @IsOptional()
+  name?: string;
+
+  @IsString()
+  @IsOptional()
+  fullName?: string;
 
   @IsEmail()
   @IsNotEmpty()
@@ -14,7 +25,9 @@ export class RegisterDto {
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
 
-  @IsEnum(UserRole, { message: 'Role must be either BORROWER or OWNER' })
+  @IsIn([UserRole.BORROWER, UserRole.OWNER], {
+    message: 'Role must be either borrower or owner',
+  })
   @IsNotEmpty()
   role: UserRole;
 }

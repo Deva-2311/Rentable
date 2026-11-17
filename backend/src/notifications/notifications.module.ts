@@ -1,15 +1,23 @@
-import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { NotificationsService } from './notifications.service';
-import { NotificationsController } from './notifications.controller';
-import { Notification, NotificationSchema } from './schemas/notification.schema';
+import { Module, Global } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { NotificationsGateway } from './notifications.gateway';
 
+@Global()
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Notification.name, schema: NotificationSchema }]),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('jwt.secret') || 'super-secret',
+        signOptions: {
+          expiresIn: configService.get<string>('jwt.expiresIn') as any,
+        },
+      }),
+      inject: [ConfigService],
+    }),
   ],
-  providers: [NotificationsService],
-  controllers: [NotificationsController],
-  exports: [NotificationsService],
+  providers: [NotificationsGateway],
+  exports: [NotificationsGateway],
 })
 export class NotificationsModule {}

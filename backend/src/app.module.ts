@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import configuration from './config/configuration';
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
@@ -16,12 +18,24 @@ import { WishlistModule } from './wishlist/wishlist.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { AdminModule } from './admin/admin.module';
 import { OwnerModule } from './owner/owner.module';
+import { UploadsModule } from './uploads/uploads.module';
+import { DisputesModule } from './disputes/disputes.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       load: [configuration],
+    }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => [
+        {
+          ttl: configService.get<number>('throttler.ttl') ?? 60,
+          limit: configService.get<number>('throttler.limit') ?? 100,
+        },
+      ],
+      inject: [ConfigService],
     }),
     DatabaseModule,
     HealthModule,
@@ -38,8 +52,15 @@ import { OwnerModule } from './owner/owner.module';
     NotificationsModule,
     AdminModule,
     OwnerModule,
+    UploadsModule,
+    DisputesModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

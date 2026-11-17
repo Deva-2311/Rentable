@@ -27,7 +27,10 @@ let AllExceptionsFilter = AllExceptionsFilter_1 = class AllExceptionsFilter {
         if (exception instanceof common_1.HttpException) {
             httpStatus = exception.getStatus();
             const response = exception.getResponse();
-            message = typeof response === 'string' ? response : response.message || 'Http Exception';
+            message =
+                typeof response === 'string'
+                    ? response
+                    : response.message || 'Http Exception';
         }
         else if (exception instanceof Error) {
             if (exception.name === 'ValidationError') {
@@ -38,7 +41,8 @@ let AllExceptionsFilter = AllExceptionsFilter_1 = class AllExceptionsFilter {
                 message = exception.message;
             }
         }
-        this.logger.error(`Exception: ${message}`, exception instanceof Error ? exception.stack : undefined);
+        const request = ctx.getRequest();
+        this.logger.error(`Exception on ${request?.url}: ${message}`, exception instanceof Error ? exception.stack : undefined);
         const responseBody = {
             success: false,
             message,

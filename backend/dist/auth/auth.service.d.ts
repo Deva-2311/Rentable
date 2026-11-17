@@ -17,6 +17,7 @@ export declare class AuthService {
     register(registerDto: RegisterDto): Promise<{
         _id: import("mongoose").Types.ObjectId;
         name: string;
+        fullName: string;
         email: string;
         role: import("../common/enums/role.enum").UserRole;
         token: string;
@@ -25,6 +26,7 @@ export declare class AuthService {
     login(loginDto: LoginDto): Promise<{
         _id: import("mongoose").Types.ObjectId;
         name: string;
+        fullName: string;
         email: string;
         role: import("../common/enums/role.enum").UserRole;
         token: string;

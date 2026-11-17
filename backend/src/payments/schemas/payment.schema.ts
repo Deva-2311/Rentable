@@ -35,10 +35,10 @@ export class Payment {
   @Prop({ default: 'INR' })
   currency: string;
 
-  @Prop({ enum: PaymentState, default: PaymentState.CREATED })
+  @Prop({ type: String, enum: PaymentState, default: PaymentState.CREATED })
   status: PaymentState;
 
-  @Prop({ enum: PaymentMethod, default: PaymentMethod.RAZORPAY })
+  @Prop({ type: String, enum: PaymentMethod, default: PaymentMethod.RAZORPAY })
   paymentMethod: PaymentMethod;
 }
 

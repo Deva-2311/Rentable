@@ -54,7 +54,11 @@ let User = class User {
     role;
     avatar;
     isVerified;
+    verificationStatus;
     isActive;
+    suspensionReason;
+    permissions;
+    walletBalance;
 };
 exports.User = User;
 __decorate([
@@ -74,7 +78,12 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, enum: Object.values(role_enum_1.UserRole), default: role_enum_1.UserRole.BORROWER }),
+    (0, mongoose_1.Prop)({
+        type: String,
+        required: true,
+        enum: Object.values(role_enum_1.UserRole),
+        default: role_enum_1.UserRole.BORROWER,
+    }),
     __metadata("design:type", String)
 ], User.prototype, "role", void 0);
 __decorate([
@@ -86,9 +95,35 @@ __decorate([
     __metadata("design:type", Boolean)
 ], User.prototype, "isVerified", void 0);
 __decorate([
+    (0, mongoose_1.Prop)({
+        type: String,
+        enum: [
+            'PENDING',
+            'UNDER_REVIEW',
+            'VERIFIED',
+            'REJECTED',
+            'MORE_INFO_REQUIRED',
+        ],
+        default: 'PENDING',
+    }),
+    __metadata("design:type", String)
+], User.prototype, "verificationStatus", void 0);
+__decorate([
     (0, mongoose_1.Prop)({ default: true }),
     __metadata("design:type", Boolean)
 ], User.prototype, "isActive", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], User.prototype, "suspensionReason", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [String], default: [] }),
+    __metadata("design:type", Array)
+], User.prototype, "permissions", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: 0 }),
+    __metadata("design:type", Number)
+], User.prototype, "walletBalance", void 0);
 exports.User = User = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], User);

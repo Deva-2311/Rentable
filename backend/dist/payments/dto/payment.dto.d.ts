@@ -6,3 +6,8 @@ export declare class VerifyPaymentDto {
     razorpayPaymentId: string;
     razorpaySignature: string;
 }
+export declare class SimulatePaymentDto {
+    bookingId: string;
+    amount?: number;
+    simulationStatus?: string;
+}

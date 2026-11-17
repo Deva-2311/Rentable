@@ -31,7 +31,7 @@ let ProductsController = class ProductsController {
     async create(req, createProductDto) {
         return {
             success: true,
-            data: await this.productsService.create(req.user._id, createProductDto),
+            data: await this.productsService.create(String(req.user._id), createProductDto),
         };
     }
     async findAll(query) {
@@ -46,13 +46,13 @@ let ProductsController = class ProductsController {
     async findMyProducts(req) {
         return {
             success: true,
-            data: await this.productsService.findByOwner(req.user._id),
+            data: await this.productsService.findByOwner(String(req.user._id)),
         };
     }
     async checkAvailability(id, startDate, endDate) {
         return {
             success: true,
-            data: { available: true }
+            data: { available: true },
         };
     }
     async findOne(id) {
@@ -64,7 +64,7 @@ let ProductsController = class ProductsController {
     async update(req, id, updateProductDto) {
         return {
             success: true,
-            data: await this.productsService.update(id, req.user._id, updateProductDto),
+            data: await this.productsService.update(id, String(req.user._id), updateProductDto, req.user.role),
         };
     }
     async setStatus(id, status) {
@@ -74,7 +74,7 @@ let ProductsController = class ProductsController {
         };
     }
     async remove(req, id) {
-        await this.productsService.remove(id, req.user._id);
+        await this.productsService.remove(id, String(req.user._id), req.user.role);
         return {
             success: true,
             message: 'Product removed successfully',
@@ -103,7 +103,11 @@ __decorate([
     (0, swagger_1.ApiQuery)({ name: 'maxPrice', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'condition', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'location', required: false }),
-    (0, swagger_1.ApiQuery)({ name: 'sort', required: false, enum: ['price_asc', 'price_desc', 'rating', 'newest'] }),
+    (0, swagger_1.ApiQuery)({
+        name: 'sort',
+        required: false,
+        enum: ['price_asc', 'price_desc', 'rating', 'newest'],
+    }),
     (0, swagger_1.ApiQuery)({ name: 'page', required: false }),
     (0, swagger_1.ApiQuery)({ name: 'limit', required: false }),
     __param(0, (0, common_1.Query)()),
@@ -114,7 +118,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('my-products'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.OWNER),
+    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.OWNER, role_enum_1.UserRole.ADMIN, role_enum_1.UserRole.SUPER_ADMIN),
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Get current owner products' }),
     __param(0, (0, common_1.Req)()),
@@ -145,9 +149,9 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.OWNER),
+    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.OWNER, role_enum_1.UserRole.ADMIN, role_enum_1.UserRole.SUPER_ADMIN),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Update a product (Owner only)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Update a product (Owner or Admin)' }),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Param)('id')),
     __param(2, (0, common_1.Body)()),
@@ -158,7 +162,7 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id/status'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.ADMIN),
+    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.ADMIN, role_enum_1.UserRole.SUPER_ADMIN),
     (0, swagger_1.ApiBearerAuth)(),
     (0, swagger_1.ApiOperation)({ summary: 'Set product status (Admin only)' }),
     __param(0, (0, common_1.Param)('id')),
@@ -170,9 +174,9 @@ __decorate([
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.OWNER),
+    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.OWNER, role_enum_1.UserRole.ADMIN, role_enum_1.UserRole.SUPER_ADMIN),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Delete a product (Owner only)' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Delete a product (Owner or Admin)' }),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),

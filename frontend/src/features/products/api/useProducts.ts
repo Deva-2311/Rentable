@@ -18,7 +18,7 @@ export const useProducts = (params?: FetchProductsParams) => {
   return useQuery({
     queryKey: ['products', params],
     queryFn: async () => {
-      const { data } = await apiClient.get<any>('/products', {
+      const { data } = await apiClient.get<{ data: Product[], pagination?: { total: number, page: number, totalPages: number } }>('/products', {
         params,
       });
       return {
@@ -35,7 +35,7 @@ export const useProduct = (id: string) => {
   return useQuery({
     queryKey: ['products', id],
     queryFn: async () => {
-      const { data } = await apiClient.get<any>(`/products/${id}`);
+      const { data } = await apiClient.get<{ success: boolean, data: Product }>(`/products/${id}`);
       return data.data;
     },
     enabled: !!id,

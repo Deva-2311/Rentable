@@ -35,7 +35,7 @@ __decorate([
     __metadata("design:type", String)
 ], Notification.prototype, "user", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ enum: NotificationType, required: true }),
+    (0, mongoose_1.Prop)({ type: String, enum: NotificationType, required: true }),
     __metadata("design:type", String)
 ], Notification.prototype, "type", void 0);
 __decorate([

@@ -3,6 +3,7 @@ import { BookingsService } from './bookings.service';
 import { getModelToken } from '@nestjs/mongoose';
 import { Booking } from './schemas/booking.schema';
 import { ProductsService } from '../products/products.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 
 describe('BookingsService', () => {
   let service: BookingsService;
@@ -19,6 +20,10 @@ describe('BookingsService', () => {
     findById: jest.fn(),
   };
 
+  const mockNotificationsGateway = {
+    notifyUser: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -30,6 +35,10 @@ describe('BookingsService', () => {
         {
           provide: ProductsService,
           useValue: mockProductsService,
+        },
+        {
+          provide: NotificationsGateway,
+          useValue: mockNotificationsGateway,
         },
       ],
     }).compile();
@@ -43,10 +52,16 @@ describe('BookingsService', () => {
 
   describe('create', () => {
     it('should throw error if product is not available', async () => {
-      mockProductsService.findById.mockResolvedValueOnce({ availability: false });
+      mockProductsService.findById.mockResolvedValueOnce({
+        availability: false,
+      });
 
       await expect(
-        service.create('user1', { product: 'prod1', startDate: '2026-10-01', endDate: '2026-10-05' } as any),
+        service.create('user1', {
+          product: 'prod1',
+          startDate: '2026-10-01',
+          endDate: '2026-10-05',
+        } as any),
       ).rejects.toThrow('Product is not currently available');
     });
 
@@ -60,11 +75,19 @@ describe('BookingsService', () => {
       });
 
       // Mock that an overlapping booking is found
-      mockBookingModel.findOne.mockResolvedValueOnce({ _id: 'overlap_booking' });
+      mockBookingModel.findOne.mockResolvedValueOnce({
+        _id: 'overlap_booking',
+      });
 
       await expect(
-        service.create('user1', { product: 'prod1', startDate: '2026-10-01', endDate: '2026-10-05' } as any),
-      ).rejects.toThrow('Product is already booked for the selected dates. Please choose different dates.');
+        service.create('user1', {
+          product: 'prod1',
+          startDate: '2026-10-01',
+          endDate: '2026-10-05',
+        } as any),
+      ).rejects.toThrow(
+        'Product is already booked for the selected dates. Please choose different dates.',
+      );
     });
   });
 });

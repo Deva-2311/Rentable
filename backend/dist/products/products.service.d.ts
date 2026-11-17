@@ -1,14 +1,28 @@
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Product, ProductDocument, ProductStatus } from './schemas/product.schema';
+import { CategoryDocument } from '../categories/schemas/category.schema';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+interface ProductQuery {
+    category?: string;
+    search?: string;
+    minPrice?: string | number;
+    maxPrice?: string | number;
+    condition?: string;
+    location?: string;
+    sort?: string;
+    page?: string | number;
+    limit?: string | number;
+}
 export declare class ProductsService {
     private productModel;
-    constructor(productModel: Model<ProductDocument>);
+    private categoryModel;
+    constructor(productModel: Model<ProductDocument>, categoryModel: Model<CategoryDocument>);
+    private resolveCategoryId;
     create(ownerId: string, createProductDto: CreateProductDto): Promise<ProductDocument>;
-    findAll(query?: any): Promise<{
-        products: (import("mongoose").Document<unknown, {}, ProductDocument, {}, import("mongoose").DefaultSchemaOptions> & Product & import("mongoose").Document<import("mongoose").Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
-            _id: import("mongoose").Types.ObjectId;
+    findAll(query?: ProductQuery): Promise<{
+        products: (import("mongoose").Document<unknown, {}, ProductDocument, {}, import("mongoose").DefaultSchemaOptions> & Product & import("mongoose").Document<Types.ObjectId, any, any, Record<string, any>, {}> & Required<{
+            _id: Types.ObjectId;
         }> & {
             __v: number;
         } & {
@@ -23,9 +37,10 @@ export declare class ProductsService {
     }>;
     findById(id: string): Promise<ProductDocument>;
     findByOwner(ownerId: string): Promise<ProductDocument[]>;
-    update(id: string, ownerId: string, updateProductDto: UpdateProductDto): Promise<ProductDocument>;
-    remove(id: string, ownerId: string): Promise<void>;
+    update(id: string, userId: string, updateProductDto: UpdateProductDto, userRole?: string): Promise<ProductDocument>;
+    remove(id: string, userId: string, userRole?: string): Promise<void>;
     setStatus(id: string, status: ProductStatus): Promise<ProductDocument>;
     countByOwner(ownerId: string): Promise<number>;
     countTotal(): Promise<number>;
 }
+export {};

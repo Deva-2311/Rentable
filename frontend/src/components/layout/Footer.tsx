@@ -1,47 +1,65 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 export function Footer() {
+  const pathname = usePathname();
+
+  if (pathname.startsWith('/admin')) {
+    return null;
+  }
+
   return (
-    <footer className="border-t bg-secondary/20">
-      <div className="container mx-auto px-4 py-8 md:py-12">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5">
+    <footer className="bg-[#121813] text-white border-t border-[#263027] pt-16 pb-8">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-5 mb-16">
           <div className="col-span-2 lg:col-span-2">
-            <Link href="/" className="mb-4 inline-block">
-              <span className="font-bold text-xl tracking-tight text-primary">RENTABLE</span>
+            <Link href="/" className="mb-6 inline-block">
+              <span className="font-black text-2xl tracking-[0.3em] uppercase text-forest-mint">RENTABLE</span>
             </Link>
-            <p className="text-sm text-muted-foreground mt-2 max-w-xs">
-              Rent what you need. When you need it. Discover quality products from people around you.
+            <p className="text-sm text-forest-soft-sage max-w-sm leading-relaxed font-light">
+              Rent what you need. Return when you&apos;re done. 
+              Discover useful products from trusted owners around you, whenever you need them.
             </p>
           </div>
+          
           <div>
-            <h3 className="mb-4 text-sm font-semibold">Categories</h3>
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="/categories/bikes" className="hover:text-foreground">Bikes</Link></li>
-              <li><Link href="/categories/cameras" className="hover:text-foreground">Cameras</Link></li>
-              <li><Link href="/categories/electronics" className="hover:text-foreground">Electronics</Link></li>
-              <li><Link href="/categories/gaming" className="hover:text-foreground">Gaming</Link></li>
+            <h3 className="mb-6 text-[10px] font-bold uppercase tracking-widest text-forest-light-sage">Marketplace</h3>
+            <ul className="space-y-4 text-sm text-forest-muted-sage">
+              <li><Link href="/explore" className="hover:text-white transition-colors">For Borrowers</Link></li>
+              <li><Link href="/owner" className="hover:text-white transition-colors">For Owners</Link></li>
+              <li><Link href="/how-it-works" className="hover:text-white transition-colors">How It Works</Link></li>
+              <li><Link href="/categories" className="hover:text-white transition-colors">Categories</Link></li>
             </ul>
           </div>
+          
           <div>
-            <h3 className="mb-4 text-sm font-semibold">About</h3>
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="/about" className="hover:text-foreground">About Us</Link></li>
-              <li><Link href="/how-it-works" className="hover:text-foreground">How It Works</Link></li>
-              <li><Link href="/contact" className="hover:text-foreground">Contact</Link></li>
-              <li><Link href="/help" className="hover:text-foreground">Help Center</Link></li>
+            <h3 className="mb-6 text-[10px] font-bold uppercase tracking-widest text-forest-light-sage">Support</h3>
+            <ul className="space-y-4 text-sm text-forest-muted-sage">
+              <li><Link href="/help" className="hover:text-white transition-colors">Help Center</Link></li>
+              <li><Link href="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
+              <li><Link href="/disputes" className="hover:text-white transition-colors">Dispute Resolution</Link></li>
             </ul>
           </div>
+          
           <div>
-            <h3 className="mb-4 text-sm font-semibold">Legal</h3>
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              <li><Link href="/terms" className="hover:text-foreground">Terms of Service</Link></li>
-              <li><Link href="/privacy" className="hover:text-foreground">Privacy Policy</Link></li>
-              <li><Link href="/cancellation" className="hover:text-foreground">Cancellation Policy</Link></li>
+            <h3 className="mb-6 text-[10px] font-bold uppercase tracking-widest text-forest-light-sage">Legal</h3>
+            <ul className="space-y-4 text-sm text-forest-muted-sage">
+              <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/cancellation" className="hover:text-white transition-colors">Cancellation Policy</Link></li>
             </ul>
           </div>
         </div>
-        <div className="mt-12 border-t pt-8 text-center text-sm text-muted-foreground">
+        
+        <div className="border-t border-forest-gray pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-forest-muted-sage">
           <p>&copy; {new Date().getFullYear()} RENTABLE. All rights reserved.</p>
+          <div className="flex gap-4">
+            <span className="hover:text-white cursor-pointer transition-colors">Twitter</span>
+            <span className="hover:text-white cursor-pointer transition-colors">Instagram</span>
+            <span className="hover:text-white cursor-pointer transition-colors">LinkedIn</span>
+          </div>
         </div>
       </div>
     </footer>

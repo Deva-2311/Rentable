@@ -58,7 +58,7 @@ __decorate([
     __metadata("design:type", Date)
 ], Rental.prototype, "endDate", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ enum: RentalStatus, default: RentalStatus.UPCOMING }),
+    (0, mongoose_1.Prop)({ type: String, enum: RentalStatus, default: RentalStatus.UPCOMING }),
     __metadata("design:type", String)
 ], Rental.prototype, "status", void 0);
 __decorate([

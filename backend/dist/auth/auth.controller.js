@@ -50,7 +50,7 @@ let AuthController = class AuthController {
         return this.authService.verifyEmail(email);
     }
     async changePassword(req, changePasswordDto) {
-        return this.authService.changePassword(req.user._id, changePasswordDto);
+        return this.authService.changePassword(String(req.user._id), changePasswordDto);
     }
     getProfile(req) {
         const user = req.user;

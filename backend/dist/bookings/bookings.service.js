@@ -18,12 +18,15 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const booking_schema_1 = require("./schemas/booking.schema");
 const products_service_1 = require("../products/products.service");
+const notifications_gateway_1 = require("../notifications/notifications.gateway");
 let BookingsService = class BookingsService {
     bookingModel;
     productsService;
-    constructor(bookingModel, productsService) {
+    notificationsGateway;
+    constructor(bookingModel, productsService, notificationsGateway) {
         this.bookingModel = bookingModel;
         this.productsService = productsService;
+        this.notificationsGateway = notificationsGateway;
     }
     async create(borrowerId, createBookingDto) {
         const product = await this.productsService.findById(createBookingDto.product);
@@ -38,9 +41,19 @@ let BookingsService = class BookingsService {
         if (end <= start) {
             throw new common_1.BadRequestException('End date must be after start date');
         }
+        const productIdStr = String(product._id);
+        const productQuery = (0, mongoose_2.isValidObjectId)(productIdStr)
+            ? { $in: [new mongoose_2.Types.ObjectId(productIdStr), productIdStr] }
+            : productIdStr;
         const overlapping = await this.bookingModel.findOne({
-            product: product._id.toString(),
-            status: { $in: [booking_schema_1.BookingStatus.PENDING, booking_schema_1.BookingStatus.CONFIRMED, booking_schema_1.BookingStatus.ACTIVE] },
+            product: productQuery,
+            status: {
+                $in: [
+                    booking_schema_1.BookingStatus.PENDING,
+                    booking_schema_1.BookingStatus.CONFIRMED,
+                    booking_schema_1.BookingStatus.ACTIVE,
+                ],
+            },
             $or: [
                 { startDate: { $lt: end, $gte: start } },
                 { endDate: { $gt: start, $lte: end } },
@@ -70,26 +83,36 @@ let BookingsService = class BookingsService {
             status: booking_schema_1.BookingStatus.PENDING,
             paymentStatus: booking_schema_1.PaymentStatus.PENDING,
         });
-        return createdBooking.save();
+        const saved = await createdBooking.save();
+        this.notificationsGateway.notifyUser(String(product.owner), 'booking:new_request', {
+            message: 'A new booking request has been received.',
+            bookingId: saved._id,
+            productName: product.name,
+        });
+        return saved;
     }
     async findByBorrower(borrowerId) {
         return this.bookingModel
             .find({ borrower: borrowerId })
-            .populate('product')
+            .populate('product', 'name images pricePerDay securityDeposit location condition')
+            .populate('owner', 'fullName email phone avatar')
             .sort({ createdAt: -1 })
             .exec();
     }
     async findByOwner(ownerId) {
         return this.bookingModel
             .find({ owner: ownerId })
-            .populate('product borrower', 'fullName email avatar')
+            .populate('product', 'name images pricePerDay securityDeposit location condition')
+            .populate('borrower', 'fullName email phone avatar')
             .sort({ createdAt: -1 })
             .exec();
     }
     async findById(id) {
         const booking = await this.bookingModel
             .findById(id)
-            .populate('product borrower owner')
+            .populate('product')
+            .populate('borrower', 'fullName email phone avatar')
+            .populate('owner', 'fullName email phone avatar')
             .exec();
         if (!booking) {
             throw new common_1.NotFoundException('Booking not found');
@@ -109,7 +132,21 @@ let BookingsService = class BookingsService {
             throw new common_1.BadRequestException(`Cannot change status of a booking that is currently ${booking.status}. It must be PENDING.`);
         }
         booking.status = status;
-        return booking.save();
+        const saved = await booking.save();
+        const borrowerId = String(saved.borrower?._id || saved.borrower);
+        const statusMessages = {
+            [booking_schema_1.BookingStatus.CONFIRMED]: 'Your booking request has been accepted! Proceed to payment.',
+            [booking_schema_1.BookingStatus.REJECTED]: 'Your booking request has been declined.',
+        };
+        const msg = statusMessages[status];
+        if (msg) {
+            this.notificationsGateway.notifyUser(borrowerId, 'booking:status_updated', {
+                message: msg,
+                bookingId: saved._id,
+                status,
+            });
+        }
+        return saved;
     }
     async internalUpdateStatus(id, status) {
         const booking = await this.bookingModel.findById(id).exec();
@@ -118,18 +155,35 @@ let BookingsService = class BookingsService {
         booking.status = status;
         return booking.save();
     }
+    async internalUpdatePaymentStatus(id, paymentStatus) {
+        const booking = await this.bookingModel.findById(id).exec();
+        if (!booking)
+            throw new common_1.NotFoundException('Booking not found');
+        booking.paymentStatus = paymentStatus;
+        return booking.save();
+    }
     async cancelBooking(id, borrowerId) {
         const booking = await this.findById(id);
         const borrowerIdStr = String(booking.borrower._id || booking.borrower);
         if (borrowerIdStr !== String(borrowerId)) {
             throw new common_1.UnauthorizedException('You can only cancel your own bookings');
         }
-        const cancellableStatuses = [booking_schema_1.BookingStatus.PENDING, booking_schema_1.BookingStatus.CONFIRMED];
+        const cancellableStatuses = [
+            booking_schema_1.BookingStatus.PENDING,
+            booking_schema_1.BookingStatus.CONFIRMED,
+        ];
         if (!cancellableStatuses.includes(booking.status)) {
             throw new common_1.BadRequestException(`Cannot cancel a booking with status: ${booking.status}`);
         }
         booking.status = booking_schema_1.BookingStatus.CANCELLED;
-        return booking.save();
+        const saved = await booking.save();
+        const ownerId = String(saved.owner?._id || saved.owner);
+        this.notificationsGateway.notifyUser(ownerId, 'booking:status_updated', {
+            message: 'A booking request for your product has been cancelled.',
+            bookingId: saved._id,
+            status: booking_schema_1.BookingStatus.CANCELLED,
+        });
+        return saved;
     }
 };
 exports.BookingsService = BookingsService;
@@ -137,6 +191,7 @@ exports.BookingsService = BookingsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(booking_schema_1.Booking.name)),
     __metadata("design:paramtypes", [mongoose_2.Model,
-        products_service_1.ProductsService])
+        products_service_1.ProductsService,
+        notifications_gateway_1.NotificationsGateway])
 ], BookingsService);
 //# sourceMappingURL=bookings.service.js.map

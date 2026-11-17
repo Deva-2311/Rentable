@@ -23,9 +23,15 @@ let WishlistService = class WishlistService {
         this.wishlistModel = wishlistModel;
     }
     async getWishlist(userId) {
-        let wishlist = await this.wishlistModel.findOne({ user: userId }).populate('products').exec();
+        let wishlist = await this.wishlistModel
+            .findOne({ user: userId })
+            .populate('products')
+            .exec();
         if (!wishlist) {
-            wishlist = await new this.wishlistModel({ user: userId, products: [] }).save();
+            wishlist = await new this.wishlistModel({
+                user: userId,
+                products: [],
+            }).save();
         }
         return wishlist;
     }

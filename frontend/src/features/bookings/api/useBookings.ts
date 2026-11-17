@@ -13,8 +13,8 @@ export const useCreateBooking = () => {
 
   return useMutation({
     mutationFn: async (payload: CreateBookingPayload) => {
-      const { data } = await apiClient.post<Booking>('/bookings', payload);
-      return data;
+      const { data } = await apiClient.post<{ success: boolean; data: Booking }>('/bookings', payload);
+      return data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });

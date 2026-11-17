@@ -8,7 +8,12 @@ export class Review {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Product', required: true })
   product: string;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Booking', required: true, unique: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Booking',
+    required: true,
+    unique: true,
+  })
   booking: string;
 
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })

@@ -31,7 +31,7 @@ export class Rental {
   @Prop({ required: true })
   endDate: Date;
 
-  @Prop({ enum: RentalStatus, default: RentalStatus.UPCOMING })
+  @Prop({ type: String, enum: RentalStatus, default: RentalStatus.UPCOMING })
   status: RentalStatus;
 
   @Prop()

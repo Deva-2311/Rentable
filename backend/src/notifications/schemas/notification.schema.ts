@@ -19,7 +19,7 @@ export class Notification {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
   user: string;
 
-  @Prop({ enum: NotificationType, required: true })
+  @Prop({ type: String, enum: NotificationType, required: true })
   type: NotificationType;
 
   @Prop({ required: true })

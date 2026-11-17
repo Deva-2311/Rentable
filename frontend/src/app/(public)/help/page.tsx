@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
@@ -44,10 +45,25 @@ export default function HelpPage() {
         </div>
       </div>
 
-      <div className="bg-card border border-border/50 rounded-2xl p-8 text-center">
-        <h2 className="text-xl font-bold mb-3">Still need help?</h2>
-        <p className="text-muted-foreground mb-6">Our support team is available 24/7 to assist you with any questions or issues.</p>
-        <Button>Contact Support</Button>
+      <div className="bg-card border border-border/50 rounded-2xl p-8 text-center space-y-4">
+        <h2 className="text-xl font-bold">Still need help?</h2>
+        <p className="text-muted-foreground max-w-lg mx-auto">
+          Our support team is available 24/7 to assist you with rentals, escrow inquiries, or technical support.
+        </p>
+        <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+          <Link 
+            href="/contact" 
+            className="inline-flex items-center justify-center rounded-xl px-6 h-11 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md transition-colors text-sm"
+          >
+            Contact Support
+          </Link>
+          <Link 
+            href="/disputes" 
+            className="inline-flex items-center justify-center rounded-xl px-6 h-11 font-semibold border border-border bg-card hover:bg-secondary transition-colors text-sm text-foreground"
+          >
+            Dispute Resolution Center
+          </Link>
+        </div>
       </div>
     </div>
   );

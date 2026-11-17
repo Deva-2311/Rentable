@@ -29,7 +29,7 @@ let ReviewsController = class ReviewsController {
     async create(req, createReviewDto) {
         return {
             success: true,
-            data: await this.reviewsService.create(req.user._id, createReviewDto),
+            data: await this.reviewsService.create(String(req.user._id), createReviewDto),
         };
     }
     async findByProduct(productId) {
@@ -45,7 +45,9 @@ __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)(role_enum_1.UserRole.BORROWER),
     (0, swagger_1.ApiBearerAuth)(),
-    (0, swagger_1.ApiOperation)({ summary: 'Submit a review for a completed rental (Borrower only)' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Submit a review for a completed rental (Borrower only)',
+    }),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),

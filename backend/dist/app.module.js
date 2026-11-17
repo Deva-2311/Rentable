@@ -12,6 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
+const throttler_1 = require("@nestjs/throttler");
+const core_1 = require("@nestjs/core");
 const configuration_1 = __importDefault(require("./config/configuration"));
 const database_module_1 = require("./database/database.module");
 const health_module_1 = require("./health/health.module");
@@ -28,6 +30,8 @@ const wishlist_module_1 = require("./wishlist/wishlist.module");
 const notifications_module_1 = require("./notifications/notifications.module");
 const admin_module_1 = require("./admin/admin.module");
 const owner_module_1 = require("./owner/owner.module");
+const uploads_module_1 = require("./uploads/uploads.module");
+const disputes_module_1 = require("./disputes/disputes.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -37,6 +41,16 @@ exports.AppModule = AppModule = __decorate([
             config_1.ConfigModule.forRoot({
                 isGlobal: true,
                 load: [configuration_1.default],
+            }),
+            throttler_1.ThrottlerModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                useFactory: (configService) => [
+                    {
+                        ttl: configService.get('throttler.ttl') ?? 60,
+                        limit: configService.get('throttler.limit') ?? 100,
+                    },
+                ],
+                inject: [config_1.ConfigService],
             }),
             database_module_1.DatabaseModule,
             health_module_1.HealthModule,
@@ -53,9 +67,16 @@ exports.AppModule = AppModule = __decorate([
             notifications_module_1.NotificationsModule,
             admin_module_1.AdminModule,
             owner_module_1.OwnerModule,
+            uploads_module_1.UploadsModule,
+            disputes_module_1.DisputesModule,
         ],
         controllers: [],
-        providers: [],
+        providers: [
+            {
+                provide: core_1.APP_GUARD,
+                useClass: throttler_1.ThrottlerGuard,
+            },
+        ],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map

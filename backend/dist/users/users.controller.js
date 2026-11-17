@@ -27,12 +27,16 @@ let UsersController = class UsersController {
         this.usersService = usersService;
     }
     async getProfile(req) {
-        const user = await this.usersService.findById(req.user._id);
+        const user = await this.usersService.findById(String(req.user._id));
         return { success: true, data: user };
     }
     async updateProfile(req, updateUserDto) {
-        const user = await this.usersService.updateProfile(req.user._id, updateUserDto);
-        return { success: true, data: user, message: 'Profile updated successfully' };
+        const user = await this.usersService.updateProfile(String(req.user._id), updateUserDto);
+        return {
+            success: true,
+            data: user,
+            message: 'Profile updated successfully',
+        };
     }
     async getUserById(id) {
         const user = await this.usersService.findById(id);

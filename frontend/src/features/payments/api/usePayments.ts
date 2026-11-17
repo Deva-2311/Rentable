@@ -30,6 +30,7 @@ export const useVerifyPayment = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['rentals'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });

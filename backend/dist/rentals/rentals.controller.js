@@ -29,14 +29,21 @@ let RentalsController = class RentalsController {
         const isOwner = req.user.role === role_enum_1.UserRole.OWNER;
         return {
             success: true,
-            data: await this.rentalsService.getActiveRentals(req.user._id, isOwner),
+            data: await this.rentalsService.getActiveRentals(String(req.user._id), isOwner),
         };
     }
     async getHistory(req) {
         const isOwner = req.user.role === role_enum_1.UserRole.OWNER;
         return {
             success: true,
-            data: await this.rentalsService.getHistory(req.user._id, isOwner),
+            data: await this.rentalsService.getHistory(String(req.user._id), isOwner),
+        };
+    }
+    async getAll(req) {
+        const isOwner = req.user.role === role_enum_1.UserRole.OWNER;
+        return {
+            success: true,
+            data: await this.rentalsService.getAllRentals(String(req.user._id), isOwner),
         };
     }
     async findOne(id) {
@@ -48,13 +55,13 @@ let RentalsController = class RentalsController {
     async requestReturn(req, id) {
         return {
             success: true,
-            data: await this.rentalsService.requestReturn(id, req.user._id),
+            data: await this.rentalsService.requestReturn(id, String(req.user._id)),
         };
     }
     async completeRental(req, id) {
         return {
             success: true,
-            data: await this.rentalsService.completeRental(id, req.user._id),
+            data: await this.rentalsService.completeRental(id, String(req.user._id)),
         };
     }
 };
@@ -75,6 +82,14 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], RentalsController.prototype, "getHistory", null);
+__decorate([
+    (0, common_1.Get)(),
+    (0, swagger_1.ApiOperation)({ summary: 'Get all rentals for the current user' }),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], RentalsController.prototype, "getAll", null);
 __decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: 'Get rental details by ID' }),

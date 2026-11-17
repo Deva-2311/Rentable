@@ -31,10 +31,13 @@ let ReviewsService = class ReviewsService {
         if (booking.borrower._id.toString() !== reviewerId) {
             throw new common_1.BadRequestException('You did not borrow this product');
         }
-        if (booking.status !== booking_schema_1.BookingStatus.COMPLETED && booking.status !== booking_schema_1.BookingStatus.RETURNED) {
+        if (booking.status !== booking_schema_1.BookingStatus.COMPLETED &&
+            booking.status !== booking_schema_1.BookingStatus.RETURNED) {
             throw new common_1.BadRequestException('You can only review a product after completing the rental');
         }
-        const existingReview = await this.reviewModel.findOne({ booking: createReviewDto.booking });
+        const existingReview = await this.reviewModel.findOne({
+            booking: createReviewDto.booking,
+        });
         if (existingReview) {
             throw new common_1.BadRequestException('You have already reviewed this booking');
         }
@@ -42,14 +45,22 @@ let ReviewsService = class ReviewsService {
             ...createReviewDto,
             reviewer: reviewerId,
         }).save();
-        const allReviews = await this.reviewModel.find({ product: createReviewDto.product });
+        const allReviews = await this.reviewModel.find({
+            product: createReviewDto.product,
+        });
         const totalRating = allReviews.reduce((acc, rev) => acc + rev.rating, 0);
         const avgRating = totalRating / allReviews.length;
-        await this.bookingsService.productsService.productModel.findByIdAndUpdate(createReviewDto.product, { rating: avgRating, reviewCount: allReviews.length });
+        await this.bookingsService.productsService.productModel.findByIdAndUpdate(createReviewDto.product, {
+            rating: avgRating,
+            reviewCount: allReviews.length,
+        });
         return createdReview;
     }
     async findByProduct(productId) {
-        return this.reviewModel.find({ product: productId }).populate('reviewer', 'fullName avatar').exec();
+        return this.reviewModel
+            .find({ product: productId })
+            .populate('reviewer', 'fullName avatar')
+            .exec();
     }
 };
 exports.ReviewsService = ReviewsService;

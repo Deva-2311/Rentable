@@ -1,5 +1,14 @@
-import { Controller, Get, Patch, Body, UseGuards, Req, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Patch,
+  Body,
+  UseGuards,
+  Req,
+  Param,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -16,16 +25,26 @@ export class UsersController {
 
   @Get('me')
   @ApiOperation({ summary: 'Get current user profile' })
-  async getProfile(@Req() req: any) {
-    const user = await this.usersService.findById(req.user._id);
+  async getProfile(@Req() req: AuthenticatedRequest) {
+    const user = await this.usersService.findById(String(req.user._id));
     return { success: true, data: user };
   }
 
   @Patch('me')
   @ApiOperation({ summary: 'Update current user profile' })
-  async updateProfile(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
-    const user = await this.usersService.updateProfile(req.user._id, updateUserDto);
-    return { success: true, data: user, message: 'Profile updated successfully' };
+  async updateProfile(
+    @Req() req: AuthenticatedRequest,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const user = await this.usersService.updateProfile(
+      String(req.user._id),
+      updateUserDto,
+    );
+    return {
+      success: true,
+      data: user,
+      message: 'Profile updated successfully',
+    };
   }
 
   @Get(':id')

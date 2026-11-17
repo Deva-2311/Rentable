@@ -40,8 +40,11 @@ apiClient.interceptors.response.use(
       // Clear token and redirect to login
       localStorage.removeItem('accessToken');
       localStorage.removeItem('user');
+      document.cookie = 'accessToken=; path=/; max-age=0';
+      document.cookie = 'userRole=; path=/; max-age=0';
       // Use window.location for a hard redirect if not already on login
       if (!window.location.pathname.includes('/login')) {
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
         window.location.href = '/login?session_expired=true';
       }
     }

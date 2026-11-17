@@ -28,19 +28,19 @@ let WishlistController = class WishlistController {
     async getWishlist(req) {
         return {
             success: true,
-            data: await this.wishlistService.getWishlist(req.user._id),
+            data: await this.wishlistService.getWishlist(String(req.user._id)),
         };
     }
     async addProduct(req, productId) {
         return {
             success: true,
-            data: await this.wishlistService.addProduct(req.user._id, productId),
+            data: await this.wishlistService.addProduct(String(req.user._id), productId),
         };
     }
     async removeProduct(req, productId) {
         return {
             success: true,
-            data: await this.wishlistService.removeProduct(req.user._id, productId),
+            data: await this.wishlistService.removeProduct(String(req.user._id), productId),
         };
     }
 };

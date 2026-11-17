@@ -14,6 +14,7 @@ const class_validator_1 = require("class-validator");
 const role_enum_1 = require("../../common/enums/role.enum");
 class RegisterDto {
     name;
+    fullName;
     email;
     password;
     role;
@@ -21,9 +22,14 @@ class RegisterDto {
 exports.RegisterDto = RegisterDto;
 __decorate([
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsNotEmpty)(),
+    (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "name", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], RegisterDto.prototype, "fullName", void 0);
 __decorate([
     (0, class_validator_1.IsEmail)(),
     (0, class_validator_1.IsNotEmpty)(),
@@ -35,7 +41,9 @@ __decorate([
     __metadata("design:type", String)
 ], RegisterDto.prototype, "password", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(role_enum_1.UserRole, { message: 'Role must be either BORROWER or OWNER' }),
+    (0, class_validator_1.IsIn)([role_enum_1.UserRole.BORROWER, role_enum_1.UserRole.OWNER], {
+        message: 'Role must be either borrower or owner',
+    }),
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], RegisterDto.prototype, "role", void 0);

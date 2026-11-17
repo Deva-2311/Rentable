@@ -25,7 +25,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       httpStatus = exception.getStatus();
       const response = exception.getResponse();
-      message = typeof response === 'string' ? response : (response as any).message || 'Http Exception';
+      message =
+        typeof response === 'string'
+          ? response
+          : (response as any).message || 'Http Exception';
     } else if (exception instanceof Error) {
       // Mongoose validation errors
       if (exception.name === 'ValidationError') {
@@ -36,7 +39,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
       }
     }
 
-    this.logger.error(`Exception: ${message}`, exception instanceof Error ? exception.stack : undefined);
+    const request = ctx.getRequest();
+    this.logger.error(
+      `Exception on ${request?.url}: ${message}`,
+      exception instanceof Error ? exception.stack : undefined,
+    );
 
     const responseBody = {
       success: false,

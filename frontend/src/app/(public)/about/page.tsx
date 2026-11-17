@@ -16,7 +16,7 @@ export default function AboutPage() {
             RENTABLE started with a simple realization: our homes are filled with incredible tools, gear, and equipment that we only use a few times a year. Meanwhile, our neighbors are buying those exact same items for a single weekend project.
           </p>
           <p>
-            We built this platform to bridge that gap. By connecting people who have things with people who need things, we're building a more sustainable, community-driven economy.
+            We built this platform to bridge that gap. By connecting people who have things with people who need things, we&apos;re building a more sustainable, community-driven economy.
           </p>
           <p>
             Today, RENTABLE is the premier marketplace for renting everything from high-end cameras to heavy-duty power tools, all backed by secure payments and verified users.

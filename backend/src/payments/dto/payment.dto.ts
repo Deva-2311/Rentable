@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreatePaymentDto {
   @IsString()
@@ -19,3 +19,18 @@ export class VerifyPaymentDto {
   @IsNotEmpty()
   razorpaySignature: string;
 }
+
+export class SimulatePaymentDto {
+  @IsString()
+  @IsNotEmpty()
+  bookingId: string;
+
+  @IsNumber()
+  @IsOptional()
+  amount?: number;
+
+  @IsString()
+  @IsOptional()
+  simulationStatus?: string;
+}
+

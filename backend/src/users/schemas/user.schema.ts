@@ -19,7 +19,12 @@ export class User {
   @Prop({ required: true, select: false })
   password?: string;
 
-  @Prop({ required: true, enum: Object.values(UserRole), default: UserRole.BORROWER })
+  @Prop({
+    type: String,
+    required: true,
+    enum: Object.values(UserRole),
+    default: UserRole.BORROWER,
+  })
   role!: UserRole;
 
   @Prop()
@@ -28,8 +33,30 @@ export class User {
   @Prop({ default: false })
   isVerified!: boolean;
 
+  @Prop({
+    type: String,
+    enum: [
+      'PENDING',
+      'UNDER_REVIEW',
+      'VERIFIED',
+      'REJECTED',
+      'MORE_INFO_REQUIRED',
+    ],
+    default: 'PENDING',
+  })
+  verificationStatus?: string;
+
   @Prop({ default: true })
   isActive!: boolean;
+
+  @Prop()
+  suspensionReason?: string;
+
+  @Prop({ type: [String], default: [] })
+  permissions?: string[];
+
+  @Prop({ default: 0 })
+  walletBalance!: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -41,10 +68,12 @@ UserSchema.pre<UserDocument>('save', async function () {
   }
 
   const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password as string, salt);
+  this.password = await bcrypt.hash(this.password, salt);
 });
 
 // Match password method
-UserSchema.methods.comparePassword = async function (enteredPassword: string): Promise<boolean> {
+UserSchema.methods.comparePassword = async function (
+  enteredPassword: string,
+): Promise<boolean> {
   return await bcrypt.compare(enteredPassword, this.password);
 };

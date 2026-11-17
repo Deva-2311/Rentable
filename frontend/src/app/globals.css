@@ -7,17 +7,42 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --font-anton: var(--font-anton);
-  --font-rock-salt: var(--font-rock-salt);
+  --font-heading: var(--font-manrope);
   
-  /* Theme Backgrounds */
-  --color-barca-navy: #0b1d3a;
-  --color-dortmund-yellow: #fcc700;
-  --color-rennes-red: #da1414;
-  --color-evreux-blue: #1b4594;
+  /* FOREST & SAGE COLOR SYSTEM (Light-safe fallbacks) */
+  --color-forest-dark: #EFEEE8;
+  --color-forest-card: #FFFFFF;
+  --color-forest-primary: #526653;
+  --color-forest-mint: #2E6B3E;
+  --color-forest-soft-sage: #DCE6D9;
+  --color-forest-light-sage: #829582;
+  --color-forest-muted-sage: #50574F;
+  --color-forest-gray: #D6D8D0;
+  --color-forest-muted: #EFEEE8;
+  --color-forest-accent1: #526653;
+  --color-forest-accent2: #829582;
+  --color-forest-light3: #50574F;
+
+  /* RENTABLE PREMIUM LIGHT-FIRST PALETTE */
+  --color-brand-ivory: #F7F6F1;
+  --color-brand-beige: #EFEEE8;
+  --color-brand-white: #FFFFFF;
+  --color-brand-text: #181B18;
+  --color-brand-text-muted: #50574F;
+  --color-brand-sage: #526653;
+  --color-brand-sage-secondary: #829582;
+  --color-brand-sage-pale: #DCE6D9;
+  --color-brand-sand: #E8DFCF;
+  --color-brand-terracotta: #B9664F;
+  --color-brand-border: #D6D8D0;
+  --color-brand-success: #2E6B3E;
+  --color-brand-success-bg: #EAF4EC;
+  --color-brand-warning: #8A5800;
+  --color-brand-warning-bg: #FEF7EA;
+  --color-brand-error: #A82D2D;
+  --color-brand-error-bg: #FDF0F0;
 
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -27,15 +52,12 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -48,53 +70,109 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-error: var(--error);
+  --color-error-foreground: var(--error-foreground);
+  
+  /* Restrained rounding */
+  --radius-sm: 8px; /* controls, buttons, inputs */
+  --radius-md: 12px; /* product cards */
+  --radius-lg: 16px; /* large bento blocks */
+  --radius-xl: 16px;
 }
 
 :root {
-  --background: #020402;
-  --foreground: #F8FAF8;
-  --card: #1F241F;
-  --card-foreground: #F8FAF8;
-  --popover: #1F241F;
-  --popover-foreground: #F8FAF8;
+  /* LIGHT / PREMIUM MINIMAL */
+  --background: #F7F6F1; /* Warm Ivory */
+  --foreground: #181B18; /* Primary Text */
   
-  /* Accents */
-  --primary: #F8FAF8;       /* Use white/foreground for primary buttons for editorial feel */
-  --primary-foreground: #020402;
-  --secondary: #1F241F;
-  --secondary-foreground: #F8FAF8;
-  --muted: #1F241F;
-  --muted-foreground: #8FA38A; /* Soft green-grey for muted text */
-  --accent: #3C433B;        /* Darker green-grey for subtle accents */
-  --accent-foreground: #F8FAF8;
+  --card: #FFFFFF;
+  --card-foreground: #181B18;
   
-  /* Brand/Success colors if needed */
-  --brand-light: #C5EFCB;
-  --brand: #A9C5A0;
-  --brand-dark: #8FA38A;
+  --popover: #FFFFFF;
+  --popover-foreground: #181B18;
+  
+  --primary: #526653; /* Primary Sage */
+  --primary-foreground: #FFFFFF;
+  
+  --secondary: #EFEEE8; /* Soft Beige */
+  --secondary-foreground: #181B18;
+  
+  --muted: #EFEEE8;
+  --muted-foreground: #50574F; /* Secondary Text */
+  
+  --accent: #DCE6D9; /* Pale Sage */
+  --accent-foreground: #181B18;
+  
+  --destructive: #B9664F; /* Terracotta Accent */
+  --destructive-foreground: #FFFFFF;
 
-  --destructive: #EF4444;
-  --border: #3C433B;        /* Distinct but subtle border */
-  --input: #3C433B;
-  --ring: #8FA38A;          /* Subtle focus ring */
+  --success: #2E6B3E;
+  --success-foreground: #FFFFFF;
+  --warning: #8A5800;
+  --warning-foreground: #FFFFFF;
+  --error: #A82D2D;
+  --error-foreground: #FFFFFF;
+
+  --border: #D6D8D0;
+  --input: #D6D8D0;
+  --ring: #526653;
   
-  --radius: 0.125rem;       /* Almost square for an architectural feel */
+  --radius: 8px;
   
-  --sidebar: #020402;
-  --sidebar-foreground: #F8FAF8;
-  --sidebar-primary: #F8FAF8;
-  --sidebar-primary-foreground: #020402;
-  --sidebar-accent: #1F241F;
-  --sidebar-accent-foreground: #F8FAF8;
-  --sidebar-border: #3C433B;
-  --sidebar-ring: #8FA38A;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #181B18;
+  --sidebar-primary: #526653;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #EFEEE8;
+  --sidebar-accent-foreground: #181B18;
+  --sidebar-border: #D6D8D0;
+  --sidebar-ring: #526653;
+}
+
+.dark {
+  --background: #181B18;
+  --foreground: #F7F6F1;
+  --card: #202420;
+  --card-foreground: #F7F6F1;
+  --popover: #202420;
+  --popover-foreground: #F7F6F1;
+  
+  --primary: #829582; 
+  --primary-foreground: #181B18;
+  --secondary: #2C312B;
+  --secondary-foreground: #F7F6F1;
+  --muted: #2C312B;
+  --muted-foreground: #A9B2A8;
+  --accent: #353B34;
+  --accent-foreground: #F7F6F1;
+  
+  --destructive: #D17C67;
+  --destructive-foreground: #181B18;
+
+  --success: #4E9962;
+  --success-foreground: #181B18;
+  --warning: #DCA54A;
+  --warning-foreground: #181B18;
+  --error: #D96969;
+  --error-foreground: #181B18;
+
+  --border: #383E37;
+  --input: #383E37;
+  --ring: #829582;
+
+  --sidebar: #202420;
+  --sidebar-foreground: #F7F6F1;
+  --sidebar-primary: #829582;
+  --sidebar-primary-foreground: #181B18;
+  --sidebar-accent: #2C312B;
+  --sidebar-accent-foreground: #F7F6F1;
+  --sidebar-border: #383E37;
+  --sidebar-ring: #829582;
 }
 
 @layer base {
@@ -107,4 +185,56 @@
   html {
     @apply font-sans;
   }
+  
+  /* Typography rules from DESIGN.md */
+  h1, h2, h3, h4, h5, h6, .display-hero, .headline-lg {
+    @apply font-heading tracking-[-0.02em];
+  }
+  
+  /* Tabular Figures for numerics and financial */
+  .tnum, .price-display, .currency, [data-type="currency"] {
+    font-feature-settings: "tnum" 1;
+  }
+}
+
+/* Structural Components */
+@layer components {
+  /* Bento Grid base */
+  .bento-container {
+    @apply grid gap-4 md:gap-5 lg:gap-7 grid-cols-4 md:grid-cols-8 lg:grid-cols-12;
+  }
+  
+  .bento-card {
+    @apply bg-card rounded-2xl border border-border overflow-hidden;
+    box-shadow: 0 1px 3px rgba(24, 27, 24, 0.04);
+  }
+  
+  /* Product Cards */
+  .product-card {
+    @apply bg-card rounded-xl border border-border overflow-hidden;
+    box-shadow: 0 1px 3px rgba(24, 27, 24, 0.04);
+  }
+}
+
+/* Suppress third-party extension overlays & injected shopping/deal widgets */
+.hk-banner-only,
+.hk-ad-banner,
+.hk-banner-close-btn,
+.hk-recoBox,
+.hk-recom-main-div,
+[class*="hk-banner"],
+[class*="hk-ad"],
+[class*="hk-"],
+[id*="hatke"],
+[id*="buyhatke"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  position: absolute !important;
+  clip: rect(0, 0, 0, 0) !important;
+  transform: scale(0) !important;
+  z-index: -99999 !important;
 }

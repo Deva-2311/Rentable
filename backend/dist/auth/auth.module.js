@@ -25,12 +25,16 @@ exports.AuthModule = AuthModule = __decorate([
         imports: [
             users_module_1.UsersModule,
             passport_1.PassportModule,
-            mongoose_1.MongooseModule.forFeature([{ name: refresh_token_schema_1.RefreshToken.name, schema: refresh_token_schema_1.RefreshTokenSchema }]),
+            mongoose_1.MongooseModule.forFeature([
+                { name: refresh_token_schema_1.RefreshToken.name, schema: refresh_token_schema_1.RefreshTokenSchema },
+            ]),
             jwt_1.JwtModule.registerAsync({
                 imports: [config_1.ConfigModule],
                 useFactory: async (configService) => ({
                     secret: configService.get('jwt.secret'),
-                    signOptions: { expiresIn: configService.get('jwt.expiresIn') },
+                    signOptions: {
+                        expiresIn: configService.get('jwt.expiresIn'),
+                    },
                 }),
                 inject: [config_1.ConfigService],
             }),

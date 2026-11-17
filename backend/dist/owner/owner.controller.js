@@ -37,18 +37,41 @@ let OwnerController = class OwnerController {
         this.rentalModel = rentalModel;
     }
     async getStats(req) {
-        const ownerId = req.user._id;
-        const [myProducts, pendingRequests, activeRentals, completedRentals, revenueResult,] = await Promise.all([
-            this.productModel.countDocuments({ owner: ownerId }),
-            this.bookingModel.countDocuments({ owner: ownerId, status: booking_schema_1.BookingStatus.PENDING }),
-            this.rentalModel.countDocuments({ owner: ownerId, status: rental_schema_1.RentalStatus.ACTIVE }),
-            this.rentalModel.countDocuments({ owner: ownerId, status: rental_schema_1.RentalStatus.COMPLETED }),
-            this.paymentModel.aggregate([
-                { $match: { user: ownerId } },
-                { $group: { _id: null, total: { $sum: '$amount' } } },
+        const ownerIdStr = String(req.user._id);
+        const ownerObjId = (0, mongoose_2.isValidObjectId)(ownerIdStr) ? new mongoose_2.Types.ObjectId(ownerIdStr) : null;
+        const ownerFilter = ownerObjId ? { $or: [{ owner: ownerObjId }, { owner: ownerIdStr }] } : { owner: ownerIdStr };
+        const [myProducts, pendingRequests, activeRentals, completedRentals, earningsResult,] = await Promise.all([
+            this.productModel.countDocuments(ownerFilter),
+            this.bookingModel.countDocuments({
+                ...ownerFilter,
+                status: booking_schema_1.BookingStatus.PENDING,
+            }),
+            this.rentalModel.countDocuments({
+                ...ownerFilter,
+                status: rental_schema_1.RentalStatus.ACTIVE,
+            }),
+            this.rentalModel.countDocuments({
+                ...ownerFilter,
+                status: rental_schema_1.RentalStatus.COMPLETED,
+            }),
+            this.bookingModel.aggregate([
+                {
+                    $match: {
+                        ...(ownerObjId
+                            ? { $or: [{ owner: ownerObjId }, { owner: ownerIdStr }] }
+                            : { owner: ownerIdStr }),
+                        paymentStatus: booking_schema_1.PaymentStatus.PAID,
+                    },
+                },
+                {
+                    $group: {
+                        _id: null,
+                        total: { $sum: '$rentalAmount' },
+                    },
+                },
             ]),
         ]);
-        const totalEarnings = revenueResult.length > 0 ? revenueResult[0].total / 100 : 0;
+        const totalEarnings = earningsResult.length > 0 ? earningsResult[0].total : 0;
         return {
             success: true,
             data: {
@@ -61,17 +84,23 @@ let OwnerController = class OwnerController {
         };
     }
     async getBookings(req) {
+        const ownerIdStr = String(req.user._id);
+        const ownerObjId = (0, mongoose_2.isValidObjectId)(ownerIdStr) ? new mongoose_2.Types.ObjectId(ownerIdStr) : null;
+        const ownerFilter = ownerObjId ? { $or: [{ owner: ownerObjId }, { owner: ownerIdStr }] } : { owner: ownerIdStr };
         const bookings = await this.bookingModel
-            .find({ owner: req.user._id })
-            .populate('product', 'name images pricePerDay')
-            .populate('borrower', 'fullName email avatar')
+            .find(ownerFilter)
+            .populate('product', 'name images pricePerDay securityDeposit location condition')
+            .populate('borrower', 'fullName email phone avatar')
             .sort({ createdAt: -1 })
             .exec();
         return { success: true, data: bookings };
     }
     async getProducts(req) {
+        const ownerIdStr = String(req.user._id);
+        const ownerObjId = (0, mongoose_2.isValidObjectId)(ownerIdStr) ? new mongoose_2.Types.ObjectId(ownerIdStr) : null;
+        const ownerFilter = ownerObjId ? { $or: [{ owner: ownerObjId }, { owner: ownerIdStr }] } : { owner: ownerIdStr };
         const products = await this.productModel
-            .find({ owner: req.user._id })
+            .find(ownerFilter)
             .populate('category', 'name slug')
             .sort({ createdAt: -1 })
             .exec();
@@ -107,7 +136,7 @@ exports.OwnerController = OwnerController = __decorate([
     (0, swagger_1.ApiTags)('Owner Dashboard'),
     (0, common_1.Controller)('owner'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.OWNER),
+    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.OWNER, role_enum_1.UserRole.ADMIN, role_enum_1.UserRole.SUPER_ADMIN),
     (0, swagger_1.ApiBearerAuth)(),
     __param(0, (0, mongoose_1.InjectModel)(product_schema_1.Product.name)),
     __param(1, (0, mongoose_1.InjectModel)(booking_schema_1.Booking.name)),

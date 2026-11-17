@@ -29,11 +29,17 @@ let PaymentsController = class PaymentsController {
     async createOrder(req, createPaymentDto) {
         return {
             success: true,
-            data: await this.paymentsService.createOrder(req.user._id, createPaymentDto),
+            data: await this.paymentsService.createOrder(String(req.user._id), createPaymentDto),
         };
     }
     async verifyPayment(verifyDto) {
         return this.paymentsService.verifyPayment(verifyDto);
+    }
+    async simulatePayment(req, simulateDto) {
+        return {
+            success: true,
+            data: await this.paymentsService.simulatePayment(String(req.user._id), simulateDto),
+        };
     }
 };
 exports.PaymentsController = PaymentsController;
@@ -56,6 +62,16 @@ __decorate([
     __metadata("design:paramtypes", [payment_dto_1.VerifyPaymentDto]),
     __metadata("design:returntype", Promise)
 ], PaymentsController.prototype, "verifyPayment", null);
+__decorate([
+    (0, common_1.Post)('simulate'),
+    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.BORROWER),
+    (0, swagger_1.ApiOperation)({ summary: 'Simulate Payment for a booking' }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, payment_dto_1.SimulatePaymentDto]),
+    __metadata("design:returntype", Promise)
+], PaymentsController.prototype, "simulatePayment", null);
 exports.PaymentsController = PaymentsController = __decorate([
     (0, swagger_1.ApiTags)('Payments'),
     (0, common_1.Controller)('payments'),

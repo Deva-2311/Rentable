@@ -14,6 +14,19 @@ RENTABLE is a two-sided enterprise-grade product rental marketplace (similar to 
 - **Payment Integration:** Secure checkout and wallet system (powered by Razorpay).
 - **Comprehensive Dashboards:** Tailored analytics and management views for owners and admins.
 
+## 📚 Comprehensive Project Documentation Suite
+
+For academic submissions, viva voce evaluation, technical architecture, and developer onboarding, refer to the complete documentation suite located in the [`docs/`](./docs) directory:
+
+1. 📄 **[Master Project Documentation (A-to-Z)](./docs/PROJECT_DOCUMENTATION.md):** Complete academic & technical report covering abstract, requirements, architecture, workflows, financial formulas, and security.
+2. 🗄️ **[Database Architecture & Schema Reference](./docs/DATABASE_DOCUMENTATION.md):** Detailed MongoDB/Mongoose collection dictionary, entity relationships (Mermaid ER), referential integrity, and indexing.
+3. 🌐 **[REST API Specification](./docs/API_DOCUMENTATION.md):** Complete endpoint-by-endpoint reference with request/response payloads, role guards, and error responses.
+4. 📖 **[User & Operations Guide](./docs/USER_GUIDE.md):** Step-by-step practical manual for Borrowers, Equipment Owners, and System Administrators.
+5. 🛠️ **[Developer Setup & Execution Guide](./docs/DEVELOPER_SETUP.md):** Prerequisites, environment configuration, database seeding, and execution commands.
+6. 🧪 **[Testing & Verification Matrix](./docs/TESTING_AND_VERIFICATION.md):** Empirical verification evidence, test execution logs, and automated integration test results.
+7. 🎓 **[Viva Voce & Presentation Guide](./docs/VIVA_QUESTIONS.md):** Two-minute pitch, five-minute architecture summary, demonstration script, and 35 viva questions with model answers.
+8. 🔍 **[Feature Audit & Gap Analysis](./docs/DOCUMENTATION_GAP_ANALYSIS.md):** Strict verification matrix separating implemented, partial, simulated, and planned capabilities.
+
 ---
 
 ## 🛠️ Technology Stack
@@ -171,3 +184,4 @@ The application uses a bold, editorial, poster-like design system inspired by hi
 
 This project is licensed under the MIT License.
 # Rentable
+Share your experience with the certificate program...

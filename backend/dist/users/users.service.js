@@ -23,15 +23,21 @@ let UsersService = class UsersService {
         this.userModel = userModel;
     }
     async create(createUserDto) {
-        const existingUser = await this.userModel.findOne({ email: createUserDto.email });
+        const existingUser = await this.userModel.findOne({
+            email: createUserDto.email,
+        });
         if (existingUser) {
             throw new common_1.BadRequestException('User with this email already exists');
         }
+        const allowedRoles = ['borrower', 'owner'];
+        const assignedRole = createUserDto.role && allowedRoles.includes(createUserDto.role)
+            ? createUserDto.role
+            : 'borrower';
         const createdUser = new this.userModel({
-            fullName: createUserDto.name,
+            fullName: createUserDto.fullName || createUserDto.name,
             email: createUserDto.email,
             password: createUserDto.password,
-            role: createUserDto.role,
+            role: assignedRole,
         });
         return createdUser.save();
     }

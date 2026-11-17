@@ -15,40 +15,45 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  // Lazy initializer — reads from localStorage only on first render (client-side)
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const storedToken = localStorage.getItem('accessToken');
+      const storedUser = localStorage.getItem('user');
+      if (storedToken && storedUser) return JSON.parse(storedUser) as User;
+    } catch {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
+    }
+    return null;
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    // Initialize auth state from local storage on load
-    const storedToken = localStorage.getItem('accessToken');
-    const storedUser = localStorage.getItem('user');
-
-    if (storedToken && storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        console.error('Failed to parse stored user', e);
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('user');
-      }
+    if (!user) {
+      document.cookie = 'accessToken=; path=/; max-age=0';
+      document.cookie = 'userRole=; path=/; max-age=0';
     }
-    
-    // In a real production app, we might also call /auth/me to verify the token is still valid
-    // but the interceptor handles 401s anyway.
-    
     setIsLoading(false);
-  }, []);
+  }, [user]);
 
   const login = (token: string, userData: User) => {
     localStorage.setItem('accessToken', token);
     localStorage.setItem('user', JSON.stringify(userData));
+    // Set cookies for middleware
+    document.cookie = `accessToken=${token}; path=/; max-age=604800; SameSite=Lax`;
+    document.cookie = `userRole=${userData.role}; path=/; max-age=604800; SameSite=Lax`;
     setUser(userData);
   };
 
   const logout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('user');
+    // Clear cookies
+    document.cookie = 'accessToken=; path=/; max-age=0';
+    document.cookie = 'userRole=; path=/; max-age=0';
     setUser(null);
     router.push('/login');
   };

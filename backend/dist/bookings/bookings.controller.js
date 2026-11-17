@@ -30,19 +30,19 @@ let BookingsController = class BookingsController {
     async create(req, createBookingDto) {
         return {
             success: true,
-            data: await this.bookingsService.create(req.user._id, createBookingDto),
+            data: await this.bookingsService.create(String(req.user._id), createBookingDto),
         };
     }
     async findMyBookings(req) {
         return {
             success: true,
-            data: await this.bookingsService.findByBorrower(req.user._id),
+            data: await this.bookingsService.findByBorrower(String(req.user._id)),
         };
     }
     async findOwnerRequests(req) {
         return {
             success: true,
-            data: await this.bookingsService.findByOwner(req.user._id),
+            data: await this.bookingsService.findByOwner(String(req.user._id)),
         };
     }
     async findOne(id) {
@@ -54,26 +54,26 @@ let BookingsController = class BookingsController {
     async acceptBooking(req, id) {
         return {
             success: true,
-            data: await this.bookingsService.updateStatus(id, booking_schema_1.BookingStatus.CONFIRMED, req.user._id, true),
+            data: await this.bookingsService.updateStatus(id, booking_schema_1.BookingStatus.CONFIRMED, String(req.user._id), true),
         };
     }
     async rejectBooking(req, id) {
         return {
             success: true,
-            data: await this.bookingsService.updateStatus(id, booking_schema_1.BookingStatus.REJECTED, req.user._id, true),
+            data: await this.bookingsService.updateStatus(id, booking_schema_1.BookingStatus.REJECTED, String(req.user._id), true),
         };
     }
     async cancelBooking(req, id) {
         return {
             success: true,
-            data: await this.bookingsService.cancelBooking(id, req.user._id),
+            data: await this.bookingsService.cancelBooking(id, String(req.user._id)),
         };
     }
 };
 exports.BookingsController = BookingsController;
 __decorate([
     (0, common_1.Post)(),
-    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.BORROWER),
+    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.BORROWER, role_enum_1.UserRole.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Create a new booking (Borrower only)' }),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Body)()),
@@ -83,7 +83,7 @@ __decorate([
 ], BookingsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)('my-bookings'),
-    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.BORROWER),
+    (0, roles_decorator_1.Roles)(role_enum_1.UserRole.BORROWER, role_enum_1.UserRole.ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Get current borrower bookings' }),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
@@ -130,7 +130,9 @@ __decorate([
 __decorate([
     (0, common_1.Patch)(':id/cancel'),
     (0, roles_decorator_1.Roles)(role_enum_1.UserRole.BORROWER),
-    (0, swagger_1.ApiOperation)({ summary: 'Cancel a booking (Borrower only, PENDING or CONFIRMED)' }),
+    (0, swagger_1.ApiOperation)({
+        summary: 'Cancel a booking (Borrower only, PENDING or CONFIRMED)',
+    }),
     __param(0, (0, common_1.Req)()),
     __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),

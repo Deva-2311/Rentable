@@ -1,3 +1,4 @@
+import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -5,7 +6,7 @@ import { ProductStatus } from './schemas/product.schema';
 export declare class ProductsController {
     private readonly productsService;
     constructor(productsService: ProductsService);
-    create(req: any, createProductDto: CreateProductDto): Promise<{
+    create(req: AuthenticatedRequest, createProductDto: CreateProductDto): Promise<{
         success: boolean;
         data: import("./schemas/product.schema").ProductDocument;
     }>;
@@ -26,7 +27,7 @@ export declare class ProductsController {
             totalPages: number;
         };
     }>;
-    findMyProducts(req: any): Promise<{
+    findMyProducts(req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: import("./schemas/product.schema").ProductDocument[];
     }>;
@@ -40,7 +41,7 @@ export declare class ProductsController {
         success: boolean;
         data: import("./schemas/product.schema").ProductDocument;
     }>;
-    update(req: any, id: string, updateProductDto: UpdateProductDto): Promise<{
+    update(req: AuthenticatedRequest, id: string, updateProductDto: UpdateProductDto): Promise<{
         success: boolean;
         data: import("./schemas/product.schema").ProductDocument;
     }>;
@@ -48,7 +49,7 @@ export declare class ProductsController {
         success: boolean;
         data: import("./schemas/product.schema").ProductDocument;
     }>;
-    remove(req: any, id: string): Promise<{
+    remove(req: AuthenticatedRequest, id: string): Promise<{
         success: boolean;
         message: string;
     }>;

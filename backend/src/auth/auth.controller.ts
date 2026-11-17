@@ -8,6 +8,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -62,15 +63,21 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Change password (authenticated users)' })
-  async changePassword(@Req() req: any, @Body() changePasswordDto: ChangePasswordDto) {
-    return this.authService.changePassword(req.user._id, changePasswordDto);
+  async changePassword(
+    @Req() req: AuthenticatedRequest,
+    @Body() changePasswordDto: ChangePasswordDto,
+  ) {
+    return this.authService.changePassword(
+      String(req.user._id),
+      changePasswordDto,
+    );
   }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current user profile' })
-  getProfile(@Req() req: any) {
+  getProfile(@Req() req: AuthenticatedRequest) {
     const user = req.user;
     return {
       _id: user._id,

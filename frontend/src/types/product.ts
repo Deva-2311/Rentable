@@ -23,6 +23,9 @@ export interface Product {
   availability: boolean;
   rentalRules?: string;
   cancellationPolicy?: string;
+  replacementValue?: number;
+  specifications?: Array<{ label: string; value: string; description: string }>;
+  whatsIncluded?: Array<{ count: number; name: string; description: string; serial?: string }>;
   status: ProductStatus;
   rating: number;
   reviewCount: number;

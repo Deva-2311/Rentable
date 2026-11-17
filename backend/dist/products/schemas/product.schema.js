@@ -57,7 +57,11 @@ __decorate([
     __metadata("design:type", String)
 ], Product.prototype, "description", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: mongoose_2.Schema.Types.ObjectId, ref: 'Category', required: true }),
+    (0, mongoose_1.Prop)({
+        type: mongoose_2.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true,
+    }),
     __metadata("design:type", String)
 ], Product.prototype, "category", void 0);
 __decorate([
@@ -93,7 +97,7 @@ __decorate([
     __metadata("design:type", String)
 ], Product.prototype, "cancellationPolicy", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ enum: ProductStatus, default: ProductStatus.PENDING_APPROVAL }),
+    (0, mongoose_1.Prop)({ type: String, enum: ProductStatus, default: ProductStatus.PENDING_APPROVAL }),
     __metadata("design:type", String)
 ], Product.prototype, "status", void 0);
 __decorate([

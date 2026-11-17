@@ -90,11 +90,11 @@ __decorate([
     __metadata("design:type", Number)
 ], Booking.prototype, "totalAmount", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ enum: BookingStatus, default: BookingStatus.PENDING }),
+    (0, mongoose_1.Prop)({ type: String, enum: BookingStatus, default: BookingStatus.PENDING }),
     __metadata("design:type", String)
 ], Booking.prototype, "status", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ enum: PaymentStatus, default: PaymentStatus.PENDING }),
+    (0, mongoose_1.Prop)({ type: String, enum: PaymentStatus, default: PaymentStatus.PENDING }),
     __metadata("design:type", String)
 ], Booking.prototype, "paymentStatus", void 0);
 exports.Booking = Booking = __decorate([

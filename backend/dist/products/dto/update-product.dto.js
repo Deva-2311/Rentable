@@ -23,6 +23,7 @@ class UpdateProductDto {
     availability;
     rentalRules;
     cancellationPolicy;
+    status;
 }
 exports.UpdateProductDto = UpdateProductDto;
 __decorate([
@@ -80,4 +81,9 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
 ], UpdateProductDto.prototype, "cancellationPolicy", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", String)
+], UpdateProductDto.prototype, "status", void 0);
 //# sourceMappingURL=update-product.dto.js.map

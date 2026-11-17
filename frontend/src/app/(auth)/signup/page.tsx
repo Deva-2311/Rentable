@@ -44,14 +44,22 @@ export default function SignupPage() {
     },
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const selectedRole = watch("role");
 
   const onSubmit = async (data: SignupFormValues) => {
     setIsLoading(true);
     try {
-      const response = await apiClient.post("/auth/register", data);
-      const { token, _id, name, email, role } = response.data;
-      const user = { _id, fullName: name, email, role } as User;
+      const payload = {
+        name: data.fullName,
+        fullName: data.fullName,
+        email: data.email,
+        password: data.password,
+        role: data.role,
+      };
+      const response = await apiClient.post("/auth/register", payload);
+      const { token, _id, name, fullName: returnedFullName, email, role } = response.data;
+      const user = { _id, fullName: returnedFullName || name || data.fullName, email, role } as User;
       
       login(token, user);
       toast.success("Account created successfully!");
@@ -61,82 +69,90 @@ export default function SignupPage() {
       } else {
         router.push('/borrower/dashboard');
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to create account");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string | string[] } } };
+      const rawMsg = err.response?.data?.message;
+      const msg = Array.isArray(rawMsg)
+        ? rawMsg.join(', ')
+        : rawMsg || "Failed to create account";
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-md p-8 sm:p-12 border border-border bg-card">
-        <div className="mb-10">
-          <h1 className="text-2xl font-light tracking-tight mb-2">Create Account</h1>
-          <p className="text-xs uppercase tracking-widest text-muted-foreground">Join RENTABLE today</p>
+    <div className="min-h-screen flex items-center justify-center relative px-4 py-12 bg-background">
+      <div className="w-full max-w-md relative z-10 bg-card rounded-3xl p-8 sm:p-12 shadow-sm border border-border text-foreground">
+        <div className="mb-10 text-center">
+          <Link href="/" className="inline-block mb-6">
+            <span className="text-xl font-heading font-bold tracking-widest text-primary uppercase">Rentable</span>
+          </Link>
+          <h1 className="text-3xl font-heading font-medium tracking-tight mb-2">Create Account</h1>
+          <p className="text-sm text-muted-foreground">Join the community</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-2" htmlFor="fullName">
+            <label className="text-xs font-semibold text-muted-foreground block mb-2" htmlFor="fullName">
               Full Name
             </label>
             <Input
               id="fullName"
               type="text"
               placeholder="Full Name"
-              className="bg-transparent rounded-none border-0 border-b border-border px-0 py-2 h-auto focus-visible:ring-0 focus-visible:border-foreground"
+              className="bg-secondary border-border px-4 py-4 h-auto text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-md"
               {...register("fullName")}
             />
             {errors.fullName && (
-              <p className="text-xs text-red-500">{errors.fullName.message}</p>
+              <p className="text-xs text-destructive">{errors.fullName.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-2" htmlFor="email">
+            <label className="text-xs font-semibold text-muted-foreground block mb-2" htmlFor="email">
               Email Address
             </label>
             <Input
               id="email"
               type="email"
               placeholder="name@example.com"
-              className="bg-transparent rounded-none border-0 border-b border-border px-0 py-2 h-auto focus-visible:ring-0 focus-visible:border-foreground"
+              className="bg-secondary border-border px-4 py-4 h-auto text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-md"
               {...register("email")}
             />
             {errors.email && (
-              <p className="text-xs text-red-500">{errors.email.message}</p>
+              <p className="text-xs text-destructive">{errors.email.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-2" htmlFor="password">
+            <label className="text-xs font-semibold text-muted-foreground block mb-2" htmlFor="password">
               Password
             </label>
             <Input
               id="password"
               type="password"
               placeholder="••••••••"
-              className="bg-transparent rounded-none border-0 border-b border-border px-0 py-2 h-auto focus-visible:ring-0 focus-visible:border-foreground"
+              className="bg-secondary border-border px-4 py-4 h-auto text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-md"
               {...register("password")}
             />
             {errors.password && (
-              <p className="text-xs text-red-500">{errors.password.message}</p>
+              <p className="text-xs text-destructive">{errors.password.message}</p>
             )}
           </div>
 
           <div className="space-y-3 pt-2">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground block mb-2">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-forest-light-sage block mb-2">
               I want to...
             </label>
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
                 onClick={() => setValue("role", "borrower")}
-                className={`py-3 px-4 border text-xs uppercase tracking-widest transition-all ${
+                className={`py-3 px-4 rounded-md text-xs uppercase font-semibold transition-all ${
                   selectedRole === "borrower"
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-border text-muted-foreground hover:border-foreground/50 hover:text-foreground"
+                    ? "bg-primary text-primary-foreground border border-primary shadow-sm"
+                    : "bg-secondary border border-border text-muted-foreground hover:bg-secondary/80"
                 }`}
               >
                 Rent Items
@@ -144,28 +160,28 @@ export default function SignupPage() {
               <button
                 type="button"
                 onClick={() => setValue("role", "owner")}
-                className={`py-3 px-4 border text-xs uppercase tracking-widest transition-all ${
+                className={`py-3 px-4 rounded-md text-xs uppercase font-semibold transition-all ${
                   selectedRole === "owner"
-                    ? "border-foreground bg-foreground text-background"
-                    : "border-border text-muted-foreground hover:border-foreground/50 hover:text-foreground"
+                    ? "bg-primary text-primary-foreground border border-primary shadow-sm"
+                    : "bg-secondary border border-border text-muted-foreground hover:bg-secondary/80"
                 }`}
               >
                 List Items
               </button>
             </div>
             {errors.role && (
-              <p className="text-xs text-red-500">{errors.role.message}</p>
+              <p className="text-xs text-destructive">{errors.role.message}</p>
             )}
           </div>
 
-          <Button type="submit" className="w-full h-12 rounded-sm bg-foreground text-background uppercase tracking-widest text-xs hover:bg-foreground/90 mt-8" disabled={isLoading}>
+          <Button type="submit" className="w-full h-12 rounded-md bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 mt-8 shadow-sm transition-all" disabled={isLoading}>
             {isLoading ? "Creating account..." : "Sign Up"}
           </Button>
         </form>
 
-        <div className="mt-8 text-xs text-muted-foreground uppercase tracking-widest">
+        <div className="mt-8 text-center text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/login" className="text-foreground hover:underline ml-1">
+          <Link href="/login" className="text-foreground hover:text-primary transition-colors font-semibold">
             Sign in
           </Link>
         </div>

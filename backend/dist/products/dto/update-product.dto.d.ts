@@ -10,4 +10,5 @@ export declare class UpdateProductDto {
     availability?: boolean;
     rentalRules?: string;
     cancellationPolicy?: string;
+    status?: string;
 }

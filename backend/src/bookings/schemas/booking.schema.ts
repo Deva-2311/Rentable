@@ -55,10 +55,10 @@ export class Booking {
   @Prop({ required: true })
   totalAmount: number;
 
-  @Prop({ enum: BookingStatus, default: BookingStatus.PENDING })
+  @Prop({ type: String, enum: BookingStatus, default: BookingStatus.PENDING })
   status: BookingStatus;
 
-  @Prop({ enum: PaymentStatus, default: PaymentStatus.PENDING })
+  @Prop({ type: String, enum: PaymentStatus, default: PaymentStatus.PENDING })
   paymentStatus: PaymentStatus;
 }
 

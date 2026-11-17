@@ -5,7 +5,12 @@ export type WishlistDocument = Wishlist & Document;
 
 @Schema({ timestamps: true })
 export class Wishlist {
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true, unique: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    unique: true,
+  })
   user: string;
 
   @Prop([{ type: MongooseSchema.Types.ObjectId, ref: 'Product' }])

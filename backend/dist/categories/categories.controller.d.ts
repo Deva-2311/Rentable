@@ -1,9 +1,13 @@
+import { Model } from 'mongoose';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
+import { AuditLogDocument } from '../audit/schemas/audit-log.schema';
+import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 export declare class CategoriesController {
     private readonly categoriesService;
-    constructor(categoriesService: CategoriesService);
-    create(createCategoryDto: CreateCategoryDto): Promise<{
+    private auditLogModel;
+    constructor(categoriesService: CategoriesService, auditLogModel: Model<AuditLogDocument>);
+    create(createCategoryDto: CreateCategoryDto, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: import("./schemas/category.schema").CategoryDocument;
     }>;
@@ -15,11 +19,11 @@ export declare class CategoriesController {
         success: boolean;
         data: import("./schemas/category.schema").CategoryDocument;
     }>;
-    update(id: string, updateCategoryDto: any): Promise<{
+    update(id: string, updateCategoryDto: any, req: AuthenticatedRequest): Promise<{
         success: boolean;
         data: import("./schemas/category.schema").CategoryDocument;
     }>;
-    remove(id: string): Promise<{
+    remove(id: string, req: AuthenticatedRequest): Promise<{
         success: boolean;
         message: string;
     }>;

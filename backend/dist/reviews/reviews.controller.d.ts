@@ -1,9 +1,10 @@
+import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 export declare class ReviewsController {
     private readonly reviewsService;
     constructor(reviewsService: ReviewsService);
-    create(req: any, createReviewDto: CreateReviewDto): Promise<{
+    create(req: AuthenticatedRequest, createReviewDto: CreateReviewDto): Promise<{
         success: boolean;
         data: import("./schemas/review.schema").ReviewDocument;
     }>;

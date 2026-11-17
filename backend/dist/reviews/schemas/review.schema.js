@@ -25,7 +25,12 @@ __decorate([
     __metadata("design:type", String)
 ], Review.prototype, "product", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: mongoose_2.Schema.Types.ObjectId, ref: 'Booking', required: true, unique: true }),
+    (0, mongoose_1.Prop)({
+        type: mongoose_2.Schema.Types.ObjectId,
+        ref: 'Booking',
+        required: true,
+        unique: true,
+    }),
     __metadata("design:type", String)
 ], Review.prototype, "booking", void 0);
 __decorate([

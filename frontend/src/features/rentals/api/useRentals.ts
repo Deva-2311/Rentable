@@ -1,12 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/lib/api/client';
-import { Booking } from '@/types/booking'; // Rentals are bookings under the hood with ACTIVE/COMPLETED status
+import { Rental } from '@/types/rental';
+
+export const useAllRentals = () => {
+  return useQuery({
+    queryKey: ['rentals', 'all'],
+    queryFn: async () => {
+      const { data } = await apiClient.get<{ success: boolean, data: Rental[] }>('/rentals');
+      return data.data;
+    },
+  });
+};
 
 export const useActiveRentals = () => {
   return useQuery({
     queryKey: ['rentals', 'active'],
     queryFn: async () => {
-      const { data } = await apiClient.get<{ success: boolean, data: Booking[] }>('/rentals/active');
+      const { data } = await apiClient.get<{ success: boolean, data: Rental[] }>('/rentals/active');
       return data.data;
     },
   });
@@ -16,9 +26,20 @@ export const useRentalHistory = () => {
   return useQuery({
     queryKey: ['rentals', 'history'],
     queryFn: async () => {
-      const { data } = await apiClient.get<{ success: boolean, data: Booking[] }>('/rentals/history');
+      const { data } = await apiClient.get<{ success: boolean, data: Rental[] }>('/rentals/history');
       return data.data;
     },
+  });
+};
+
+export const useRental = (id: string) => {
+  return useQuery({
+    queryKey: ['rentals', id],
+    queryFn: async () => {
+      const { data } = await apiClient.get<{ success: boolean, data: Rental }>(`/rentals/${id}`);
+      return data.data;
+    },
+    enabled: !!id,
   });
 };
 
@@ -27,7 +48,7 @@ export const useRequestReturn = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await apiClient.post<{ success: boolean, data: Booking }>(`/rentals/${id}/return-request`);
+      const { data } = await apiClient.post<{ success: boolean, data: Rental }>(`/rentals/${id}/return-request`);
       return data.data;
     },
     onSuccess: () => {
@@ -41,7 +62,7 @@ export const useCompleteRental = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data } = await apiClient.patch<{ success: boolean, data: Booking }>(`/rentals/${id}/complete`);
+      const { data } = await apiClient.patch<{ success: boolean, data: Rental }>(`/rentals/${id}/complete`);
       return data.data;
     },
     onSuccess: () => {

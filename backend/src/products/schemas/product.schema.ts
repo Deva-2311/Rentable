@@ -26,7 +26,11 @@ export class Product {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Category', required: true })
+  @Prop({
+    type: MongooseSchema.Types.ObjectId,
+    ref: 'Category',
+    required: true,
+  })
   category: string;
 
   @Prop([String])
@@ -53,7 +57,7 @@ export class Product {
   @Prop()
   cancellationPolicy?: string;
 
-  @Prop({ enum: ProductStatus, default: ProductStatus.PENDING_APPROVAL })
+  @Prop({ type: String, enum: ProductStatus, default: ProductStatus.PENDING_APPROVAL })
   status: ProductStatus;
 
   @Prop({ default: 0 })

@@ -31,16 +31,23 @@ let NotificationsService = class NotificationsService {
         return notification.save();
     }
     async getMyNotifications(userId) {
-        return this.notificationModel.find({ user: userId }).sort({ createdAt: -1 }).exec();
+        return this.notificationModel
+            .find({ user: userId })
+            .sort({ createdAt: -1 })
+            .exec();
     }
     async markAsRead(id, userId) {
-        const notification = await this.notificationModel.findOneAndUpdate({ _id: id, user: userId }, { isRead: true }, { new: true }).exec();
+        const notification = await this.notificationModel
+            .findOneAndUpdate({ _id: id, user: userId }, { isRead: true }, { new: true })
+            .exec();
         if (!notification)
             throw new Error('Notification not found');
         return notification;
     }
     async markAllAsRead(userId) {
-        await this.notificationModel.updateMany({ user: userId, isRead: false }, { isRead: true }).exec();
+        await this.notificationModel
+            .updateMany({ user: userId, isRead: false }, { isRead: true })
+            .exec();
     }
 };
 exports.NotificationsService = NotificationsService;

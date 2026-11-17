@@ -1,5 +1,14 @@
-import { Controller, Get, Post, Delete, Param, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Delete,
+  Param,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 import { WishlistService } from './wishlist.service';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -16,28 +25,40 @@ export class WishlistController {
 
   @Get()
   @ApiOperation({ summary: 'Get current user wishlist' })
-  async getWishlist(@Req() req: any) {
+  async getWishlist(@Req() req: AuthenticatedRequest) {
     return {
       success: true,
-      data: await this.wishlistService.getWishlist(req.user._id),
+      data: await this.wishlistService.getWishlist(String(req.user._id)),
     };
   }
 
   @Post(':productId')
   @ApiOperation({ summary: 'Add product to wishlist' })
-  async addProduct(@Req() req: any, @Param('productId') productId: string) {
+  async addProduct(
+    @Req() req: AuthenticatedRequest,
+    @Param('productId') productId: string,
+  ) {
     return {
       success: true,
-      data: await this.wishlistService.addProduct(req.user._id, productId),
+      data: await this.wishlistService.addProduct(
+        String(req.user._id),
+        productId,
+      ),
     };
   }
 
   @Delete(':productId')
   @ApiOperation({ summary: 'Remove product from wishlist' })
-  async removeProduct(@Req() req: any, @Param('productId') productId: string) {
+  async removeProduct(
+    @Req() req: AuthenticatedRequest,
+    @Param('productId') productId: string,
+  ) {
     return {
       success: true,
-      data: await this.wishlistService.removeProduct(req.user._id, productId),
+      data: await this.wishlistService.removeProduct(
+        String(req.user._id),
+        productId,
+      ),
     };
   }
 }

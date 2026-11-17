@@ -1,8 +1,22 @@
 import {
-  Controller, Get, Post, Patch, Body, Param, Query,
-  UseGuards, Req, Delete,
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+  Req,
+  Delete,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiBearerAuth,
+  ApiQuery,
+} from '@nestjs/swagger';
+import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -22,10 +36,16 @@ export class ProductsController {
   @Roles(UserRole.OWNER)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Create a new product (Owner only)' })
-  async create(@Req() req: any, @Body() createProductDto: CreateProductDto) {
+  async create(
+    @Req() req: AuthenticatedRequest,
+    @Body() createProductDto: CreateProductDto,
+  ) {
     return {
       success: true,
-      data: await this.productsService.create(req.user._id, createProductDto),
+      data: await this.productsService.create(
+        String(req.user._id),
+        createProductDto,
+      ),
     };
   }
 
@@ -37,7 +57,11 @@ export class ProductsController {
   @ApiQuery({ name: 'maxPrice', required: false })
   @ApiQuery({ name: 'condition', required: false })
   @ApiQuery({ name: 'location', required: false })
-  @ApiQuery({ name: 'sort', required: false, enum: ['price_asc', 'price_desc', 'rating', 'newest'] })
+  @ApiQuery({
+    name: 'sort',
+    required: false,
+    enum: ['price_asc', 'price_desc', 'rating', 'newest'],
+  })
   @ApiQuery({ name: 'page', required: false })
   @ApiQuery({ name: 'limit', required: false })
   async findAll(@Query() query: any) {
@@ -52,13 +76,13 @@ export class ProductsController {
 
   @Get('my-products')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
+  @Roles(UserRole.OWNER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Get current owner products' })
-  async findMyProducts(@Req() req: any) {
+  async findMyProducts(@Req() req: AuthenticatedRequest) {
     return {
       success: true,
-      data: await this.productsService.findByOwner(req.user._id),
+      data: await this.productsService.findByOwner(String(req.user._id)),
     };
   }
 
@@ -71,12 +95,9 @@ export class ProductsController {
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    // This is handled by BookingsService in the actual booking creation,
-    // but we can expose a dedicated check here via productsService if needed.
-    // For now, returning true as a placeholder, real logic requires calling BookingsService.
     return {
       success: true,
-      data: { available: true }
+      data: { available: true },
     };
   }
 
@@ -91,23 +112,28 @@ export class ProductsController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
+  @Roles(UserRole.OWNER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update a product (Owner only)' })
+  @ApiOperation({ summary: 'Update a product (Owner or Admin)' })
   async update(
-    @Req() req: any,
+    @Req() req: AuthenticatedRequest,
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
   ) {
     return {
       success: true,
-      data: await this.productsService.update(id, req.user._id, updateProductDto),
+      data: await this.productsService.update(
+        id,
+        String(req.user._id),
+        updateProductDto,
+        req.user.role,
+      ),
     };
   }
 
   @Patch(':id/status')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Roles(UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Set product status (Admin only)' })
   async setStatus(
@@ -122,11 +148,11 @@ export class ProductsController {
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.OWNER)
+  @Roles(UserRole.OWNER, UserRole.ADMIN, UserRole.SUPER_ADMIN)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Delete a product (Owner only)' })
-  async remove(@Req() req: any, @Param('id') id: string) {
-    await this.productsService.remove(id, req.user._id);
+  @ApiOperation({ summary: 'Delete a product (Owner or Admin)' })
+  async remove(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
+    await this.productsService.remove(id, String(req.user._id), req.user.role);
     return {
       success: true,
       message: 'Product removed successfully',

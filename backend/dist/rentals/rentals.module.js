@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RentalsModule = void 0;
 const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
+const bookings_module_1 = require("../bookings/bookings.module");
 const rentals_service_1 = require("./rentals.service");
 const rentals_controller_1 = require("./rentals.controller");
 const rental_schema_1 = require("./schemas/rental.schema");
@@ -19,6 +20,7 @@ exports.RentalsModule = RentalsModule = __decorate([
     (0, common_1.Module)({
         imports: [
             mongoose_1.MongooseModule.forFeature([{ name: rental_schema_1.Rental.name, schema: rental_schema_1.RentalSchema }]),
+            (0, common_1.forwardRef)(() => bookings_module_1.BookingsModule),
         ],
         providers: [rentals_service_1.RentalsService],
         controllers: [rentals_controller_1.RentalsController],

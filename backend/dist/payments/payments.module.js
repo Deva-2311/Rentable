@@ -13,6 +13,7 @@ const payments_service_1 = require("./payments.service");
 const payments_controller_1 = require("./payments.controller");
 const payment_schema_1 = require("./schemas/payment.schema");
 const bookings_module_1 = require("../bookings/bookings.module");
+const rentals_module_1 = require("../rentals/rentals.module");
 let PaymentsModule = class PaymentsModule {
 };
 exports.PaymentsModule = PaymentsModule;
@@ -21,6 +22,7 @@ exports.PaymentsModule = PaymentsModule = __decorate([
         imports: [
             mongoose_1.MongooseModule.forFeature([{ name: payment_schema_1.Payment.name, schema: payment_schema_1.PaymentSchema }]),
             bookings_module_1.BookingsModule,
+            rentals_module_1.RentalsModule,
         ],
         providers: [payments_service_1.PaymentsService],
         controllers: [payments_controller_1.PaymentsController],

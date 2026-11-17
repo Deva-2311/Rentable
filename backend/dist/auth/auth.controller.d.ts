@@ -5,12 +5,14 @@ import { RefreshTokenDto } from './dto/refresh.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 export declare class AuthController {
     private readonly authService;
     constructor(authService: AuthService);
     register(registerDto: RegisterDto): Promise<{
         _id: import("mongoose").Types.ObjectId;
         name: string;
+        fullName: string;
         email: string;
         role: import("../common/enums/role.enum").UserRole;
         token: string;
@@ -19,6 +21,7 @@ export declare class AuthController {
     login(loginDto: LoginDto): Promise<{
         _id: import("mongoose").Types.ObjectId;
         name: string;
+        fullName: string;
         email: string;
         role: import("../common/enums/role.enum").UserRole;
         token: string;
@@ -44,19 +47,19 @@ export declare class AuthController {
         success: boolean;
         message: string;
     }>;
-    changePassword(req: any, changePasswordDto: ChangePasswordDto): Promise<{
+    changePassword(req: AuthenticatedRequest, changePasswordDto: ChangePasswordDto): Promise<{
         success: boolean;
         message: string;
     }>;
-    getProfile(req: any): {
-        _id: any;
-        name: any;
-        email: any;
-        role: any;
-        avatar: any;
-        phone: any;
-        walletBalance: any;
-        isVerified: any;
-        isActive: any;
+    getProfile(req: AuthenticatedRequest): {
+        _id: import("mongoose").Types.ObjectId;
+        name: string;
+        email: string;
+        role: import("../common/enums/role.enum").UserRole;
+        avatar: string;
+        phone: string;
+        walletBalance: number;
+        isVerified: boolean;
+        isActive: boolean;
     };
 }

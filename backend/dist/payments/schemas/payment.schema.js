@@ -60,11 +60,11 @@ __decorate([
     __metadata("design:type", String)
 ], Payment.prototype, "currency", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ enum: PaymentState, default: PaymentState.CREATED }),
+    (0, mongoose_1.Prop)({ type: String, enum: PaymentState, default: PaymentState.CREATED }),
     __metadata("design:type", String)
 ], Payment.prototype, "status", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ enum: PaymentMethod, default: PaymentMethod.RAZORPAY }),
+    (0, mongoose_1.Prop)({ type: String, enum: PaymentMethod, default: PaymentMethod.RAZORPAY }),
     __metadata("design:type", String)
 ], Payment.prototype, "paymentMethod", void 0);
 exports.Payment = Payment = __decorate([
